@@ -2,14 +2,10 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-    <!--
-		<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
-  -->
+
     <title>{{ page.title }}</title>
 		<link rel="stylesheet" href="/css/style.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-		<!-- <script src="/js/main.js"></script> -->
-
 
 		{% if jekyll.environment == 'production' %}
 			<script>
@@ -25,24 +21,15 @@
 	</head>
 	<body>
     <ul class="navbar">
-      <li class="navoption"><a href="index.html">Home</a></li>
-      <li class="navoption"><a href="blogdex.html">Blogdex</a></li>
-      <li class="navoption"><a href="teaching.html">Teaching</a></li>
-      <li class="navoption"><a href="research.html">Research</a></li>
-      <li class="navoption"><a href="about.html">About</a></li>
+      <li class="navoption"><a {% if page.url == '/index.html' or page.url == '/' %} class="active"{% endif %} href="index.html">Home</a></li>
+      <li class="navoption"><a {% if page.url == '/blogdex.html' %} class="active"{% endif %} href="blogdex.html">Blogdex</a></li>
+      <li class="navoption"><a {% if page.url == '/teaching.html' %} class="active"{% endif %} href="teaching.html">Teaching</a></li>
+      <li class="navoption"><a {% if page.url == '/research.html' %} class="active"{% endif %} href="research.html">Research</a></li>
     </ul>
-    <script>
-   $(function() {
-     //TODO: set appropriate '.navoption a' to class='active' if it's the right page
-      $('.navoption a').click(function() {
-        console.log('clicked');
-         $('.navoption a').removeClass();
-         //console.log($($(this)));
-         //$($(this).attr('href')).addClass('active');
-      });
-   });
-</script>
 		<div class="topdiv">
+      <h1>
+        {{page.url}}
+      </h1>
 			{{ content }}
 		</div>
 	</body>

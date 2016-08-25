@@ -3,6 +3,9 @@ layout: default
 page.title: HOME
 ---
 
-<div class="topdiv">
+<div>
   <h1>Index</h1>
+  {% for local_variable in local_variables %}
+      <p> {{ local_variable }} </p><br>
+  {% endfor %}
 </div>
