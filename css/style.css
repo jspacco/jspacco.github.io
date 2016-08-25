@@ -1,0 +1,38 @@
+.defaultbody {
+  margin:0;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #4f3276;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.navoption {
+    float: left;
+}
+
+.navoption a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navoption a:hover:not(.active) {
+    background-color: #12ae50;
+}
+
+.topdiv {
+  margin-top:60px;
+}
+
+.active {
+    background-color: #12ae50;
+}
