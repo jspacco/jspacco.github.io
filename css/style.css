@@ -1,38 +1,90 @@
+body {
+  font-family: Courier;
+}
+
 .defaultbody {
   margin:0;
 }
 
 .navbar {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #4f3276;
-    position: fixed;
-    top: 0;
-    width: 100%;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #4f3276;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.navbarimg {
+  float:right;
+  padding-right:10px;
 }
 
 .navoption {
-    float: left;
+  float: left;
 }
 
 .navoption a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 30px;
 }
 
 .navoption a:hover:not(.active) {
-    background-color: #12ae50;
+  background-color: #12ae50;
+}
+
+.coldiv {
+  border-radius: 50px;
+  margin-right: 50px;
+  margin-top: 20px;
+  border: 4px;
+  padding: 20px;
+  overflow: hidden;
+  vertical-align: center;
+}
+
+.coldiv img {
+  border-radius: 20px;
+  margin-right: 15px;
+  float: left;
+  width: 200px;
+}
+
+.coldiv p {
+  margin-left: 210px;
+}
+
+.purplebg {
+  background-color:rgba(102,51,153,0.5);
+}
+
+.greenbg {
+  background-color:rgba(102,153,102,0.5);
+}
+
+.greybg {
+  background-color:rgba(102,102,102,0.5);
+}
+
+.bluebg {
+  background-color:rgba(51,102,153,0.5);
+}
+
+.yellowbg {
+  background-color: rgba(255,204,51,0.5);
 }
 
 .topdiv {
-  margin-top:60px;
+  /* the margin leaves enough room to fit in the menu bar */
+  margin-top:75px;
 }
 
 .active {
-    background-color: #12ae50;
+  background-color: #12ae50;
 }
