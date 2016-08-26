@@ -20,17 +20,23 @@
 		{% endif %}
 	</head>
 	<body>
+
     <ul class="navbar">
       <li class="navoption"><a {% if page.url == '/index.html' or page.url == '/' %} class="active"{% endif %} href="index.html">Home</a></li>
-      <li class="navoption"><a {% if page.url == '/blogdex.html' %} class="active"{% endif %} href="blogdex.html">Blogdex</a></li>
+      <!--
       <li class="navoption"><a {% if page.url == '/teaching.html' %} class="active"{% endif %} href="teaching.html">Teaching</a></li>
       <li class="navoption"><a {% if page.url == '/research.html' %} class="active"{% endif %} href="research.html">Research</a></li>
+    -->
+      <li class="navbarimg"><img src="images/knox-logo-white.png" height="60px"/> </li>
+    <a href="family-portrait.html">
+      <li class="navbarimg"><img src="images/spacdog.png" height="60px"/> </li>
+    </a>
+
     </ul>
 		<div class="topdiv">
-      <h1>
-        {{page.url}}
-      </h1>
+
 			{{ content }}
-		</div>
+
+    </div>
 	</body>
 </html>
