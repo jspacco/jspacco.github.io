@@ -1,0 +1,294 @@
+<html>
+<head>
+<title>KnoxelJS</title>
+
+<link rel="stylesheet" type="text/css" href="./css/style.css">
+
+</head>
+<body>
+
+<ul class="tab">
+    <li><a href="#javascript" class="tablinks active" id="javascriptTab" onclick="openTab('javascript')">Javascript</a></li>
+    <li><a href="#python" class="tablinks" id="pythonTab" onclick="openTab('python')">Python</a></li>
+    <li><a href="#game" class="tablinks" id="gameTab" onclick="openTab('game')">Game</a></li>
+    <li><a href="#about" class="tablinks" id="aboutTab" onclick="openTab('about')">About</a></li>
+</ul>
+
+<div id="game" class="tabcontent">
+    <input type="file" id="loadDrawing" class="inputfile">
+    <label for="loadDrawing">Load Drawing from JSON</label>
+    
+    <div id="gamediv" class="game">
+    </div>
+</div>
+
+<div id="javascript" class="tabcontent editor" style="display:block;">
+    <button id="runJavascript" onclick="runJavascript()">Run Javascript code!</button>
+
+    <div id="javascriptEditor" class="editor">
+const width = 2;
+const depth = 3;
+const height = 4;
+let blocks = knoxel.makeGrid(width, depth, height);
+
+for (let w=0; w&lt;width; w++){
+    for (let d=0; d&lt;depth; d++){
+        for (let h=0; h&lt;height; h++){
+            blocks[w][d][h] = knoxel.dirt;
+        }
+    }
+}
+knoxel.drawBlocks(blocks);
+    </div>
+</div>
+
+<div id="python" class="tabcontent editor">
+    <button id="runPython" onclick="runPython()">Run Python code!</button>
+
+    <div id="pythonEditor" class="editor">
+width = 2
+depth = 3
+height = 4
+#blocks = [[[null for k in xrange(height)] for j in xrange(depth)] for i in xrange(width)]
+blocks = makeGrid(width, depth, height)
+
+for i in xrange(width):
+    for j in xrange(depth):
+        for k in xrange(height):
+            blocks[i][j][k] = bt.cobblestone
+
+drawBlocks(blocks)
+    </div>
+</div>
+
+<div id="about" class="tabcontent">
+    <div>
+        Knoxel aspires to bring the joy of Minecraft to CS-0 and CS-1 courses.
+    </div>
+    <div>
+        <p>Team Knoxcraft is:</p>
+        <table id="aboutTable">
+        <tr><td>
+                <img id="avatarHeadshot" src="./images/kakoijohnAvatar.png"> John Damits, Knox College '17, funded by the Mellon Foundation and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/moemattAvatar.png"> Matt Moe, Knox College '17, funded by the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/steveAvatar.png"> Lucas Kasser, Brown University '19
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/EmhastingsAvatar.png"> Emily Hastings, Knox College '16, funded by the <a href="https://www.knox.edu/Documents/PDFs/CRAS/ASSET%20Program%20Description.pdf"> ASSET </a> program, and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/steveAvatar.png"> Michael Gerten, Knox College '16, funded by Knox's Baker-Velde award, and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/SpacdogAvatar.png"> Jaime Spacco, Haverford College '98
+        </td></tr>
+        </table>
+    </div>
+    <div>
+        <p>Knoxcraft is made possible by the following projects:</p>
+        <ul>
+            <li><a href="http://voxeljs.com/">VoxelJS</a>, blocks in yo browser (required <a href="http://get.webgl.org/">WebGL</a>)</li>
+            <li><a href="http://bdcraft.net/sphax-purebdcraft-texturepack">Sphax</a> texture pack</li>
+            <li><a href="https://skulpt.org/"> Skulpt</a></li>
+            <!--
+            <li><a href="https://minecraft.net/">Minecraft</a></li>
+            <li><a href="http://files.minecraftforge.net/">Minecraft Forge</a>, the community-supported moddable Minecraft server</li>
+            <li><a href="https://www.spongepowered.org/">Spongepowered</a>, a Minecraft modding API built on Forge</li>
+            <li><a href="https://www.javapoly.com/">JavaPoly</a>, Java(script) in your browser</li>
+            <li><a href="https://ace.c9.io">ACE editor</a>, part of <a href="https://c9.io/">Cloud9</a></li>
+            <li><a href="https://developers.google.com/blockly/">Blockly</a>, a block-based visual programming language</li>
+            <li><a href="http://www.eclipse.org/jetty/">Jetty</a>, a webserver and servlet container</li>
+            -->
+        </ul>
+    </div>
+    <div>
+        <p>Knoxel was inspired by, or is similar to, the following projects:</p>
+        <ul>
+            <li><a href="http://scriptcraftjs.org/">ScriptCraftJS</a>, which uses <a href="https://canarymod.net/">Canarymod</a></li>
+            <li><a href="http://computercraftedu.com/">ComputerCraftEDU</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Logo_(programming_language)">Seymour Papert's Logo</a></li>
+            <li><a href="http://coweb.cc.gatech.edu/mediaComp-plan">Media Computation</a></li>
+        </ul>
+    </div>
+</div>
+
+
+<script>
+
+const getMethods = (obj) => {
+    let properties = new Set()
+    let currentObj = obj
+    do {
+        Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
+    } while ((currentObj = Object.getPrototypeOf(currentObj)))
+    return [...properties.keys()].filter(item => typeof obj[item] === 'function')
+}
+
+function openTab(tabName) {
+    let tabcontent = document.getElementsByClassName("tabcontent");
+    for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    let tablinks = document.getElementsByClassName("tablinks");
+    for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName+'Tab').className += " active";
+}
+
+function runJavascript() {
+    let studentCode = javascriptEditor.getValue();
+    // security risk, but it's all client-side code with no state, so I don't really care
+    try {
+        eval(studentCode);
+        openTab('game');
+    } catch (error) {
+        // TODO: set the markers
+        console.log(error);
+        console.log(error.lineNumber);
+        console.log(error.fileName);
+        console.log(error.message);
+        console.log(error.stack);
+        // if (error instanceof SyntaxError) {
+        //     //console.log(`SyntaxError ${error}`);
+        // }
+        // //let getMethods = (obj) => Object.getOwnPropertyNames(obj).filter(item => typeof obj[item] === 'function');
+        // for (let m of getMethods(error)) {
+        //     //console.log(m);
+        // }
+    }
+}
+
+function runPython() {
+    // remove marks
+    for (let mark of pythonErrorMarkers) {
+        console.log(`clear error marker ${mark}`);
+        pythonEditor.getSession().removeMarker(mark);
+    }
+    pythonErrorMarkers = [];
+    pythonEditor.resize();
+
+    // get student code from editor, then paste our base code in front of it
+    let studentCode = pythonEditor.getValue();
+    let fullCode = pykcLibraryCode + studentCode;
+
+    // configure and run the python code
+    Sk.configure({});
+    var myPromise = Sk.misceval.asyncToPromise(function() {
+        return Sk.importMainWithBody("<stdin>", false, fullCode, true);
+    });
+    myPromise.then(function(mod) {
+        // on success, switch to the game tab
+        openTab('game');
+    },
+    function(err) {
+        // rewrite error messages to subtract off the length of our base code
+        // TODO: mark the error message in the editor
+        let errmsg = err.toString();
+        // TODO: better post-processing of errors
+        let regex = /line ([0-9]+)/g;
+        let newmsg = errmsg;
+        match = regex.exec(newmsg);
+        while (match != null) {
+          // matched text: match[0]
+          // match start: match.index
+          // capturing group n: match[n]
+          let oldline = match[0];
+          let num = match[1];
+          let newNum = num - pykcCodeLen + 1;
+          // mark line in ace editor
+          let errid = pythonEditor.session.addMarker(new Range(newNum-1, 0, newNum-1, 1), "aceErrorMarker", "fullLine");
+          pythonErrorMarkers.push(errid);
+          console.log(`errid ${errid}`);
+          let newline = `line ${newNum}`;
+          newmsg = newmsg.replace(oldline, newline);
+          match = regex.exec(newmsg);
+        }
+        // TODO: integrate error into ACE editor somehow
+        console.log(newmsg);
+    });
+    
+}
+</script>
+
+
+<!-- load code for the embedded ACE editor -->
+<script src="./ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="./ace-builds/src-min-noconflict/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
+<script src="./knoxel-bundle.js"></script>
+<script src="./pykc/skulpt.min.js"></script>
+<script src="./pykc/skulpt-stdlib.js"></script>
+
+<script>
+    // load the pykc base code
+    var pykcLibraryCode = null;
+    var pykcCodeLen = -1;
+    let client = new XMLHttpRequest();
+    // 3rd paramter false makes this a synchronous request
+    client.open('GET', './pykc/pykcbase.py', false);
+    client.onreadystatechange = function() {
+      pykcLibraryCode = client.responseText+"\n\n";
+      pykcCodeLen = pykcLibraryCode.split(/\r\n|\r|\n/).length;
+    }
+    client.send();
+    
+    // shimming Skulpt
+    Sk.builtins.drawBlocks = function(blocks) {
+        // convert from Skupt to pure JS, then pass off to JS function in our bundle
+        let jsblocks = [];
+        
+        // all JS values in Skulpt are objects where 
+        // the actual JS values are stored with key v
+        //console.log(`blocks.v.length ${blocks.v.length}`);
+        for (let w=0; w<blocks.v.length; w++){
+            let row = [];
+            //console.log(`blocks.v[w].v.length ${blocks.v[w].v.length}`);
+            for (let d=0; d<blocks.v[w].v.length; d++){
+                let col = [];
+                //console.log(`blocks.v[w].v[d].v.length ${blocks.v[w].v[d].v.length}`);
+                for (let h=0; h<blocks.v[w].v[d].v.length; h++){
+                    col.push(blocks.v[w].v[d].v[h].v);
+                }
+                row.push(col);
+            }
+            jsblocks.push(row);
+        }
+        // Call into our bundles JS code
+        knoxel.drawBlocks(jsblocks);
+    }
+
+    // Ace range function
+    var Range = ace.require('ace/range').Range;
+
+    // setup the javascript ACE editor
+    var javascriptEditor = ace.edit("javascriptEditor");
+    javascriptEditor.setTheme("ace/theme/twilight");
+    javascriptEditor.getSession().setMode("ace/mode/javascript");
+    javascriptEditor.setAutoScrollEditorIntoView(true);
+    javascriptEditor.setFontSize(20);
+    var javascriptErrorMarkers = [];
+
+    // setup the python ACE editor
+    var pythonEditor = ace.edit("pythonEditor");
+    pythonEditor.setTheme("ace/theme/twilight");
+    pythonEditor.getSession().setMode("ace/mode/python");
+    pythonEditor.setAutoScrollEditorIntoView(true);
+    pythonEditor.setFontSize(20);
+    var pythonErrorMarkers = [];
+
+    // attach the game object to the game div
+    knoxel.game.appendTo(document.getElementById("gamediv"));
+
+    // set the event handler for upload drawing files
+    document.getElementById("loadDrawing").onchange = knoxel.loadDrawing;
+
+</script>
+
+</body>
+</html>
