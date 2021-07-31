@@ -7021,7 +7021,7 @@ function config (name) {
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],28:[function(require,module,exports){
-const [allMaterials, materialLookup] = createMaterials();
+const [allMaterials, materialLookup, textureTable] = createMaterials();
 let game = makeGame();
 
 function createMaterials() {
@@ -7037,7 +7037,72 @@ function createMaterials() {
     // AIR should always be at index 0 in textures.json, but in case it's not
     // we will do a lookup
     materialLookup[null] = materialLookup['AIR'];
-    return [allMaterials, materialLookup];
+
+    function td(parent, text) {
+        let tmp = document.createElement("td");
+        tmp.innerHTML = text;
+        parent.appendChild(tmp);
+    }
+
+    function th(parent, text) {
+        let tmp = document.createElement("th");
+        tmp.innerHTML = text;
+        parent.appendChild(tmp);
+    }
+
+    let textureTable = document.createElement("table");
+    let head = document.createElement("tr");
+    
+    th(head, "Texture");
+    //let tex = document.createElement("th");
+    //tex.innerHTML = "Texture";
+    //head.appendChild(tex);
+
+    th(head, "Javascript");
+    th(head, "Python");
+    th(head, "Java");
+
+    textureTable.appendChild(head);
+
+    for (const [name, image] of Object.entries(textures)) {
+        let row = document.createElement("tr");
+        
+        if (Array.isArray(image)) {
+            let div = document.createElement("div");
+            for (let img1 of image) {
+                let img = document.createElement("img");
+                img.src = `./textures/${img1.toLowerCase()}.png`;
+                img.style.width = '64px';
+                img.style.height = '64px';
+                div.appendChild(img);
+            }
+            let td1 = document.createElement("td");
+            td1.appendChild(div);
+            row.appendChild(td1);
+        } else {
+            let img = document.createElement("img");
+            img.src = `./textures/${image.toLowerCase()}.png`;
+            img.style.width = '64px';
+            img.style.height = '64px';
+            let td1 = document.createElement("td");
+            td1.appendChild(img);
+            row.appendChild(td1);
+        }
+        
+        
+
+        // Javascript
+        td(row, `knoxel.${name.toLowerCase()}`);
+        // Python
+        td(row, `bt.${name.toLowerCase()}`);
+        // Java
+        td(row, `BlockType.${name}`);
+
+        textureTable.appendChild(row);
+    }
+    
+
+    return [allMaterials, materialLookup, textureTable];
 }
 
 
@@ -7215,6 +7280,7 @@ module.exports.loadDrawing = loadDrawing;
 module.exports.drawBlocks = drawBlocks;
 module.exports.makeGrid = makeGrid;
 module.exports.blockify = blockify;
+module.exports.textureTable = textureTable;
 // so we can do knoxel.dirt, or knoxel.cobblestone, etc
 for (let material of Object.keys(materialLookup)) {
     module.exports[material.toLowerCase()] = material;
