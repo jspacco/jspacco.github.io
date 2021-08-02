@@ -7023,6 +7023,7 @@ function config (name) {
 },{}],28:[function(require,module,exports){
 const [allMaterials, materialLookup, reverseMaterialLookup, textureTable] = createMaterials();
 let [width, depth, height] = [null, null, null];
+let opts = {axesOn : true, debugOn: false};
 let [game, waila] = makeGame();
 
 function createMaterials() {
@@ -7105,7 +7106,9 @@ function createMaterials() {
     return [allMaterials, materialLookup, reverseMaterialLookup, textureTable];
 }
 
-
+function debug(msg) {
+    if (opts.debugOn) console.log(msg);
+}
 
 function makeGame() {
     let createGame = require('voxel-engine');
@@ -7188,9 +7191,9 @@ function makeGame() {
             let x = target.voxel[0];
             let y = target.voxel[1];
             let z = target.voxel[2];
-            console.log(`use x,y,z = (${x}, ${y}, ${z})`);
-            //console.log(allMaterials);
-            //console.log(materialLookup);
+            debug(`use x,y,z = (${x}, ${y}, ${z})`);
+            //debug(allMaterials);
+            //debug(materialLookup);
             // do nothing on use; this is just here in case we want to add a handler for this
         }
     });
@@ -7217,7 +7220,7 @@ function makeGame() {
                 // if we are in range of our drawing, clicking shows the coords in code-space
                 msg += `<br>blocks[${w}][${d}][${h}]`;
             }
-            console.log(`mine x,y,z = (${x}, ${y}, ${z}) blockIndex = ${blockIndex}, blockType = ${blockType}, waila width=${width}, depth=${depth}, height=${height}`);
+            debug(`mine x,y,z = (${x}, ${y}, ${z}) blockIndex = ${blockIndex}, blockType = ${blockType}, waila width=${width}, depth=${depth}, height=${height}`);
             setWaila(msg);
             node.style.setProperty('visibility', 'visible', 'important');
         }
@@ -7231,7 +7234,7 @@ function makeGame() {
 // load a JSON drawing file
 //
 async function loadDrawing(evt) {
-    console.log("Loading drawing!");
+    debug("Loading drawing!");
     // Incredibly complicated and convoluated way to read a file in JS, ugh
     let file = evt.target.files[0];
 
@@ -7256,7 +7259,7 @@ async function loadDrawing(evt) {
     try {
         updateDrawing(text);
     } catch (error) {
-        console.log(`error with updateDrawing: ${error}, ${typeof error}`);
+        debug(`error with updateDrawing: ${error}, ${typeof error}`);
         throw error;
     }
 }
@@ -7266,7 +7269,7 @@ function updateDrawing(result) {
     depth = parseInt(obj.depth);
     width = parseInt(obj.width);
     height = parseInt(obj.height);
-    //console.log(`upload drawing with width = ${obj.width}, depth=${depth}, height=${height}`);
+    //debug(`upload drawing with width = ${obj.width}, depth=${depth}, height=${height}`);
     drawBlocks(obj.blocks);
 }
 
@@ -7302,11 +7305,86 @@ const blockify = function(grid) {
 function code2GameCoords(w, d, h) {
     // map from x,z,y in 3D array coords to x,y+1,-z in game coords
     // this is just x, y+1, -z
-    return [w, h+1, -d];
+    return [w, -d, h+1];
 }
 
 function game2CodeCoords(x, y, z) {
     return [x, -z, y-1];
+}
+
+// TODO: pick up here! set up the axes
+function makeAxes() {
+    function getNum(val) {
+        return `num${val}`;
+    }
+
+    if (width == null || depth == null || height == null) return;
+    
+    // x labels
+    for (let x=0; x<width; x++) {
+        if (x > 99) {
+            // 100 to 999
+            let digit3 = Math.floor(x / 100);
+            game.setBlock([x, 0, 1], getNum(digit3));
+            let digit2 = Math.floor(x / 10) % 10;
+            game.setBlock([x, 0, 2], getNum(digit2));
+            let digit1 = x % 10;
+            game.setBlock([x, 0, 3], getNum(digit1));
+        } else if (x > 9) {
+            // 10 to 99
+            let digit2 = Math.floor(x / 10);
+            game.setBlock([x, 0, 1], getNum(digit2));
+            let digit1 = x % 10;
+            game.setBlock([x, 0, 2], getNum(digit1));
+        } else {
+            // x from 0 to 9
+            game.setBlock([x, 0, 1], getNum(x));
+        }
+    }
+
+    // z labels
+    for (let z=0; z<depth; z++) {
+        if (z > 99) {
+            // 100 to 999
+            let digit3 = Math.floor(z / 100);
+            game.setBlock([-1, 0, -z], getNum(digit3));
+            let digit2 = Math.floor(z / 10) % 10;
+            game.setBlock([-2, 0, -z], getNum(digit2));
+            let digit1 = z % 10;
+            game.setBlock([-3, 0, -z], getNum(digit1));
+        } else if (z > 9) {
+            // 10 to 99
+            let digit2 = Math.floor(z / 10) % 10;
+            game.setBlock([-1, 0, -z], getNum(digit2));
+            let digit1 = z % 10;
+            game.setBlock([-2, 0, -z], getNum(digit1));
+        } else {
+            // x from 0 to 9
+            game.setBlock([-1, 0, -z], getNum(z));
+        }
+    }
+
+    // y labels
+    for (let y=0; y<height; y++) {
+        if (y > 99) {
+            // 100 to 999
+            let digit3 = Math.floor(y / 100);
+            game.setBlock([-1, y+1, 1], getNum(digit3));
+            let digit2 = Math.floor(y / 10) % 10;
+            game.setBlock([0, y+1, 1], getNum(digit2));
+            let digit1 = y % 10;
+            game.setBlock([1, y+1, 1], getNum(digit1));
+        } else if (y > 9) {
+            // 10 to 99
+            let digit2 = Math.floor(y / 10) % 10;
+            game.setBlock([-1, y+1, 1], getNum(digit2));
+            let digit1 = y % 10;
+            game.setBlock([0, y+1, 1], getNum(digit1));
+        } else {
+            // 0 to 9
+            game.setBlock([-1, y+1, 1], getNum(y));
+        }
+    }
 }
 
 const drawBlocks = function(blocks) {
@@ -7324,11 +7402,13 @@ const drawBlocks = function(blocks) {
                     // map null to AIR
                     block = 0;
                 }
-                console.log(`set block ${x}, ${z}, ${y}, coords (${code2GameCoords(x, y, z)}) to ${materialLookup[blocks[x][z][y]]} ${allMaterials[materialLookup[block]] }`);
-                game.setBlock(code2GameCoords(x, y, z), materialLookup[block]);
+                debug(`set block ${x}, ${z}, ${y}, coords (${x}, ${y+1}, ${-z}) to ${materialLookup[blocks[x][z][y]]} ${allMaterials[materialLookup[block]] }`);
+                game.setBlock([x, y+1, -z], materialLookup[block]);
             }
         }
     }
+    // should we draw axes?
+    if (opts.axesOn) makeAxes();
 }
 
 
@@ -7344,6 +7424,7 @@ for (let material of Object.keys(materialLookup)) {
     module.exports[material.toLowerCase()] = material;
 }
 module.exports.waila = waila;
+module.exports.opts = opts;
 //module.exports.allMaterials = allMaterials;
 //module.exports.materialLookup = materialLookup;
 },{"./textures.json":78,"voxel-engine":58,"voxel-fly":61,"voxel-highlight":63,"voxel-player":66,"voxel-reach":68}],29:[function(require,module,exports){
