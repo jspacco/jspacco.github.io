@@ -7021,22 +7021,25 @@ function config (name) {
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],28:[function(require,module,exports){
-const [allMaterials, materialLookup, textureTable] = createMaterials();
-let game = makeGame();
+const [allMaterials, materialLookup, reverseMaterialLookup, textureTable] = createMaterials();
+let [width, depth, height] = [null, null, null];
+let [game, waila] = makeGame();
 
 function createMaterials() {
     let allMaterials = [];
     let materialLookup = {};
+    let reverseMaterialLookup = {};
 
     let textures = require('./textures.json');
     for (const [name, filenames] of Object.entries(textures)) {
         allMaterials.push(filenames);
         materialLookup[name] = allMaterials.length;
+        reverseMaterialLookup[allMaterials.length] = name;
     }
     // so that null maps to AIR
     // AIR should always be at index 0 in textures.json, but in case it's not
     // we will do a lookup
-    materialLookup[null] = materialLookup['AIR'];
+    //materialLookup[null] = materialLookup['AIR'];
 
     function td(parent, text) {
         let tmp = document.createElement("td");
@@ -7088,8 +7091,6 @@ function createMaterials() {
             td1.appendChild(img);
             row.appendChild(td1);
         }
-        
-        
 
         // Javascript
         td(row, `knoxel.${name.toLowerCase()}`);
@@ -7100,51 +7101,26 @@ function createMaterials() {
 
         textureTable.appendChild(row);
     }
-    
 
-    return [allMaterials, materialLookup, textureTable];
+    return [allMaterials, materialLookup, reverseMaterialLookup, textureTable];
 }
 
 
 
-// TODO: finish this refactoring
 function makeGame() {
     let createGame = require('voxel-engine');
-
     // export for use in the HTML file
     let game = createGame({
         generate: function(x, y, z) {
             return y === 0 ? materialLookup['GRASS'] : 0;
         },
-        chunkDistance: 2,
+        chunkDistance: 4,
         materials: allMaterials,
         materialFlatColor: false,
+        statsDisabled: true,
         texturePath: './textures/'
     });
 
-    // Try to set up click handlers
-    let createReach = require('voxel-reach');
-    let reach = createReach(game, {reachDistance: 8});
-
-    reach.on('use', function(target) {
-        // right-click
-        if (target){
-            let x = target.voxel[0];
-            let y = target.voxel[1];
-            let z = target.voxel[2];
-            console.log("use x,y,z = ("+x+","+y+","+z+")");
-        }
-    });
-
-    reach.on('mining', function(target) {
-        // left-click
-        if (target){
-            let x = target.voxel[0];
-            let y = target.voxel[1];
-            let z = target.voxel[2];
-            console.log("mine x,y,z = ("+x+","+y+","+z+")");
-        }
-    });
 
     // TODO: numbered axes with x, y, z
     // Set origin to RED_WOOL
@@ -7159,25 +7135,96 @@ function makeGame() {
         game.setBlock(new Array(-1, 0, -z), materialLookup['BLUE_WOOL']);
     }
 
+    //
+    // create player
+    //
     let createPlayer = require('voxel-player')(game);
     let player = createPlayer('./images/spacdog.png');
     player.possess();
     player.position.set(0,5,5);
 
+    //
     // I believe I can fly!
+    //
     let fly = require('voxel-fly');
     let makeFly = fly(game);
     makeFly(game.controls.target());
 
+    //
     // highlight blocks when you look at them
+    //
     let highlight = require('voxel-highlight')
     let highlightPos;
-    var hl = game.highlighter = highlight(game, { color: 0xffffff })
+    var hl = game.highlighter = highlight(game, { color: 0xffffff , wireframeLinewidth: 20})
     hl.on('highlight', function (voxelPos) { highlightPos = voxelPos })
     hl.on('remove', function (voxelPos) { highlightPos = null })
 
+    //
+    // hacking in my own version of Deathcap's voxel-voila
+    // https://github.com/voxel/voxel-voila/blob/master/voila.js
+    //
+    let node = document.createElement('span');
+    // waila set in css/style.css
+    node.className = 'waila';
+
+    function setWaila(msg) {
+        node.innerHTML = msg;
+    }
+
+    const container = document.createElement('div');
+    container.className = "overlay";
+    container.appendChild(node);
+
+    // 
+    // click handlers for mine/use (left/right click)
+    // these should update the html span node we just created
+    // 
+    let createReach = require('voxel-reach');
+    let reach = createReach(game, {reachDistance: 8});
+
+    reach.on('use', function(target) {
+        // right-click
+        if (target){
+            let x = target.voxel[0];
+            let y = target.voxel[1];
+            let z = target.voxel[2];
+            console.log(`use x,y,z = (${x}, ${y}, ${z})`);
+            //console.log(allMaterials);
+            //console.log(materialLookup);
+            // do nothing on use; this is just here in case we want to add a handler for this
+        }
+    });
+
+    reach.on('mining', function(target) {
+        // left-click
+        if (target){
+            let x = target.voxel[0];
+            let y = target.voxel[1];
+            let z = target.voxel[2];
+            
+            // GODDAMMIT! blocks in the game are apparently indexed starting at 1 rather than 0
+            let blockIndex = game.getBlock(target.voxel);
+            let blockType = reverseMaterialLookup[blockIndex];
+
+            let msg = blockType.toLowerCase();
+            let [w, d, h] = game2CodeCoords(x, y, z);
+
+            if (width != null && depth != null && height != null && 
+                w >= 0 && w < width &&
+                d >= 0 && d < depth &&
+                h >= 0 && h < height)
+            {
+                // if we are in range of our drawing, clicking shows the coords in code-space
+                msg += `<br>blocks[${w}][${d}][${h}]`;
+            }
+            console.log(`mine x,y,z = (${x}, ${y}, ${z}) blockIndex = ${blockIndex}, blockType = ${blockType}, waila width=${width}, depth=${depth}, height=${height}`);
+            setWaila(msg);
+            node.style.setProperty('visibility', 'visible', 'important');
+        }
+    });
+
     // return the voxel game object we created
-    return game;
+    return [game, container];
 }
 
 //
@@ -7206,7 +7253,6 @@ async function loadDrawing(evt) {
     // the function containing this is marked async
     let text = await readFileHelp();
 
-    console.log(text);
     try {
         updateDrawing(text);
     } catch (error) {
@@ -7217,12 +7263,10 @@ async function loadDrawing(evt) {
   
 function updateDrawing(result) {
     let obj = JSON.parse(result);
-    let depth = parseInt(obj.depth);
-    let width = parseInt(obj.width);
-    let height = parseInt(obj.height);
-    console.log("width = "+obj.width);
-    console.log("depth = "+obj.depth);
-    console.log("height = "+obj.height);
+    depth = parseInt(obj.depth);
+    width = parseInt(obj.width);
+    height = parseInt(obj.height);
+    //console.log(`upload drawing with width = ${obj.width}, depth=${depth}, height=${height}`);
     drawBlocks(obj.blocks);
 }
 
@@ -7255,10 +7299,20 @@ const blockify = function(grid) {
     }
 }
 
+function code2GameCoords(w, d, h) {
+    // map from x,z,y in 3D array coords to x,y+1,-z in game coords
+    // this is just x, y+1, -z
+    return [w, h+1, -d];
+}
+
+function game2CodeCoords(x, y, z) {
+    return [x, -z, y-1];
+}
+
 const drawBlocks = function(blocks) {
-    const width = blocks.length;
-    const depth = blocks[0].length;
-    const height = blocks[0][0].height;
+    width = blocks.length;
+    depth = blocks[0].length;
+    height = blocks[0][0].length;
     // x is width
     for (let x = 0; x < blocks.length; x++) {
         // z is depth
@@ -7266,8 +7320,12 @@ const drawBlocks = function(blocks) {
             // y is height
             for (let y = 0; y < blocks[x][z].length; y++){
                 let block = blocks[x][z][y];
-                console.log(`set block ${x}, ${z}, ${y}, coords (${x}, ${y+1}, ${-z}) to ${materialLookup[blocks[x][z][y]]} ${allMaterials[materialLookup[block]] }`);
-                game.setBlock(new Array(x, y+1, -z), materialLookup[block]);
+                if (block == null) {
+                    // map null to AIR
+                    block = 0;
+                }
+                console.log(`set block ${x}, ${z}, ${y}, coords (${code2GameCoords(x, y, z)}) to ${materialLookup[blocks[x][z][y]]} ${allMaterials[materialLookup[block]] }`);
+                game.setBlock(code2GameCoords(x, y, z), materialLookup[block]);
             }
         }
     }
@@ -7285,6 +7343,7 @@ module.exports.textureTable = textureTable;
 for (let material of Object.keys(materialLookup)) {
     module.exports[material.toLowerCase()] = material;
 }
+module.exports.waila = waila;
 //module.exports.allMaterials = allMaterials;
 //module.exports.materialLookup = materialLookup;
 },{"./textures.json":78,"voxel-engine":58,"voxel-fly":61,"voxel-highlight":63,"voxel-player":66,"voxel-reach":68}],29:[function(require,module,exports){
@@ -53827,17 +53886,18 @@ if(exports) {
 module.exports={
     "AIR": "air",
     "STONE": "stone",
+    "DIRT": "dirt",
+    "GRASS": ["grass_side", "grass_side", "grass_top", "dirt", "grass_side", "grass_side"],
+    "COBBLESTONE": "cobblestone",
     "GRANITE": "stone_granite",
     "POLISHED_GRANITE": "stone_granite_smooth",
     "DIORITE": "stone_diorite",
     "POLISHED_DIORITE": "stone_diorite_smooth",
     "ANDESITE": "stone_andesite",
     "POLISHED_ANDESITE": "stone_andesite_smooth",
-    "GRASS": ["grass_side", "grass_side", "grass_top", "dirt", "grass_side", "grass_side"],
-    "DIRT": "dirt",
     "COARSE_DIRT": "coarse_dirt",
     "PODZOL": ["dirt_podzol_top", "dirt_podzol_side"],
-    "COBBLESTONE": "cobblestone",
+    
     "OAK_WOOD_PLANK": "planks_oak",
     "SPRUCE_WOOD_PLANK": "planks_spruce",
     "BIRCH_WOOD_PLANK": "planks_birch",
