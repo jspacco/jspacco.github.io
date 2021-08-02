@@ -7023,7 +7023,7 @@ function config (name) {
 },{}],28:[function(require,module,exports){
 const [allMaterials, materialLookup, reverseMaterialLookup, textureTable] = createMaterials();
 let [width, depth, height] = [null, null, null];
-let opts = {axesOn : true, debugOn: false};
+let opts = {axesOn : false, debugOn: false};
 let [game, waila] = makeGame();
 
 function createMaterials() {
@@ -7387,7 +7387,7 @@ function makeAxes() {
     }
 }
 
-const drawBlocks = function(blocks) {
+const drawBlocks = function(blocks, axesOverride=false) {
     width = blocks.length;
     depth = blocks[0].length;
     height = blocks[0][0].length;
@@ -7408,7 +7408,7 @@ const drawBlocks = function(blocks) {
         }
     }
     // should we draw axes?
-    if (opts.axesOn) makeAxes();
+    if (opts.axesOn || axesOverride) makeAxes();
 }
 
 

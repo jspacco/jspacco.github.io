@@ -266,3 +266,9 @@ ul.tab li a:focus, .active {
     max-width: 100%;
     margin: auto;
 }
+
+.faq {
+    padding: 10px;
+    background: #4caf4f;
+    color: white;
+}
