@@ -7398,7 +7398,7 @@ const drawBlocks = function(blocks, axesOverride=false) {
             // y is height
             for (let y = 0; y < blocks[x][z].length; y++){
                 let block = blocks[x][z][y];
-                if (block == null) {
+                if (block == null || block == "AIR") {
                     // map null to AIR
                     block = 0;
                 }
@@ -7409,6 +7409,21 @@ const drawBlocks = function(blocks, axesOverride=false) {
     }
     // should we draw axes?
     if (opts.axesOn || axesOverride) makeAxes();
+}
+
+function readSync(filename) {
+    let text = null;
+    let length = -1;
+    let client = new XMLHttpRequest();
+    // 3rd paramter false makes this a synchronous request
+    // async requests don't always finish before we need this information
+    client.open('GET', filename, false);
+    client.onreadystatechange = function() {
+      text = client.responseText+"\n\n";
+      length = text.split(/\r\n|\r|\n/).length;
+    }
+    client.send();
+    return [text, length];
 }
 
 
@@ -7425,6 +7440,7 @@ for (let material of Object.keys(materialLookup)) {
 }
 module.exports.waila = waila;
 module.exports.opts = opts;
+module.exports.readSync = readSync;
 //module.exports.allMaterials = allMaterials;
 //module.exports.materialLookup = materialLookup;
 },{"./textures.json":78,"voxel-engine":58,"voxel-fly":61,"voxel-highlight":63,"voxel-player":66,"voxel-reach":68}],29:[function(require,module,exports){
