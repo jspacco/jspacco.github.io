@@ -431,6 +431,12 @@ tr.calendar-body .calendar-day .day[disabled] {
     text-align: left;
 }
 
+.event-container > .event-info > p.event-username {
+    font-size: 12px;
+    margin-top: 8px;
+    text-align: left;
+}
+
 .event-container > .event-info > p.event-year {
     font-size: 19px;
     margin-top: 8px;

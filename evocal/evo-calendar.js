@@ -745,9 +745,10 @@
                 <p class="event-title">${_.limitTitle(event_data.name)}
                 ${badge}
                 </p>
-                <p class="event-year">${year} ${event_data.username}</p>
+                <p class="event-year">${year}</p>
                 ${description}
                 ${location}
+                <p class="event-username">${event_data.username}</p>
                 ${tags}
             </div>
         </div>
