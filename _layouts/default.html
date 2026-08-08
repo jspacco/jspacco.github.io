@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page.title }}</title>
-		<link rel="stylesheet" href="/css/style.css">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="icon" href="/favicon.png" type="image/png">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
-	{% if jekyll.environment == 'production' %}
-	<script>
-  	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-  	ga('create', 'UA-83296596-1', 'auto');
-  	ga('send', 'pageview');
-	</script>
-	{% endif %}
-	</head>
-	<body>
+    {% if jekyll.environment == 'production' %}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-83296596-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+    {% endif %}
+  </head>
+  <body>
 
-    <ul class="navbar">
-      <li class="navoption"><a {% if page.url == '/index.html' or page.url == '/' %} class="active"{% endif %} href="index.html">Home</a></li>
-	  <li class="navoption"><a href="knoxel" target="_blank">Knoxel</a></li>
-      <!--
-      <li class="navoption"><a {% if page.url == '/teaching.html' %} class="active"{% endif %} href="teaching.html">Teaching</a></li>
-      <li class="navoption"><a {% if page.url == '/research.html' %} class="active"{% endif %} href="research.html">Research</a></li>
-    -->
-      <li class="navbarimg"><img src="images/knox-logo-white.png" height="60px"/> </li>
-    <a href="family-portrait.html">
-      <li class="navbarimg"><img src="images/spacdog.png" height="60px"/> </li>
-    </a>
+    <nav class="navbar">
+      <ul class="nav-links">
+        <li><a href="/index.html" {% if page.url == '/index.html' or page.url == '/' %}class="active"{% endif %}>Home</a></li>
+        <li><a href="/knoxel" target="_blank">Knoxel ↗</a></li>
+        <li><a href="/ai-antipatterns/ai-antipatterns.html">AI Anti-Patterns</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="/family-portrait.html"><img src="/images/spacdog.png" height="40px" alt="spacdog"/></a>
+        <img src="/images/knox-logo-white.png" height="40px" alt="Knox College"/>
+      </div>
+    </nav>
 
-    </ul>
-	<div class="topdiv">
-
-			{{ content }}
-
+    <div class="pagewrap">
+      {{ content }}
     </div>
-	</body>
+
+    <footer class="sitefooter">
+      <span>Jaime Spacco &middot; Knox College &middot; Galesburg IL</span>
+      <a href="mailto:jspacco@knox.edu">jspacco@knox.edu</a>
+    </footer>
+
+  </body>
 </html>

@@ -27,3 +27,10 @@ github_username:  jekyll
 # Build settings
 markdown: kramdown
 theme: minima
+
+# auto-apply layout to /tropes/ folder
+defaults:
+  - scope:
+      path: "tropes"
+    values:
+      layout: tropes

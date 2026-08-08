@@ -1,0 +1,403 @@
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --yellow: #f5c518;
+  --black: #111111;
+  --paper: #f5f0e8;
+  --muted: #888888;
+  --border: 3px solid #111111;
+}
+
+body {
+  background: var(--paper);
+  color: var(--black);
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+a { color: inherit; }
+
+/* ── NAVBAR ── */
+.navbar {
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 56px;
+  border-bottom: 4px solid var(--yellow);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  list-style: none;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  flex: 1;
+  height: 100%;
+}
+
+.nav-links li {
+  height: 100%;
+}
+
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--paper);
+  text-decoration: none;
+  padding: 0 18px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-right: 1px solid #333;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.nav-right img { opacity: 0.9; }
+.nav-right img:hover { opacity: 1; }
+
+/* ── PAGE WRAP ── */
+.pagewrap {
+  margin-top: 56px;
+}
+
+/* ── HERO ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  border-bottom: var(--border);
+  min-height: 260px;
+}
+
+.hero-text {
+  padding: 36px 40px 28px;
+  border-right: var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.hero-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+}
+
+.hero-name .highlight {
+  color: var(--yellow);
+  -webkit-text-stroke: 2px var(--black);
+}
+
+.hero-bio {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #444;
+  margin-top: 20px;
+  line-height: 1.65;
+  border-top: 2px solid var(--black);
+  padding-top: 14px;
+}
+
+.hero-bio strong { color: var(--black); }
+
+.hero-photo {
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.2) grayscale(0.4);
+  opacity: 0.85;
+  display: block;
+}
+
+.hero-photo-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--yellow);
+  padding: 6px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--black);
+  border-top: 3px solid var(--black);
+}
+
+/* ── MANIFESTO STRIP ── */
+.manifesto {
+  background: var(--black);
+  color: var(--paper);
+  padding: 12px 40px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  border-bottom: 4px solid var(--yellow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  align-items: center;
+}
+
+.manifesto-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manifesto-item::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--yellow);
+  flex-shrink: 0;
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  padding: 20px 40px 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 2px solid var(--black);
+}
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.05em;
+}
+
+.section-subtitle {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+/* ── PROJECT CARDS ── */
+/* Cards sit in a CSS counter grid — counter auto-numbers them */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  counter-reset: project-counter;
+}
+
+/* Simple markup: <div class="project-card"><span class="tag">Label</span><h2>Title</h2><p>Desc</p></div> */
+.project-card {
+  border-right: var(--border);
+  border-bottom: var(--border);
+  padding: 28px 28px 24px;
+  position: relative;
+  transition: background 0.1s;
+  counter-increment: project-counter;
+  overflow: hidden;
+}
+
+.project-card:nth-child(3n) {
+  border-right: none;
+}
+
+.project-card:hover {
+  background: var(--yellow);
+}
+
+/* Ghost number from CSS counter */
+.project-card::after {
+  content: counter(project-counter, decimal-leading-zero);
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  color: rgba(0,0,0,0.07);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.project-card:hover::after {
+  color: rgba(0,0,0,0.12);
+}
+
+.project-card .tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--black);
+  color: var(--paper);
+  padding: 3px 8px;
+  margin-bottom: 12px;
+}
+
+.project-card:hover .tag {
+  background: var(--black);
+  color: var(--yellow);
+}
+
+.project-card h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  line-height: 1.0;
+  margin-bottom: 10px;
+  letter-spacing: 0.03em;
+  font-weight: 400;
+}
+
+.project-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.project-card:hover p {
+  color: var(--black);
+}
+
+/* ── NEW WORK STRIP ── */
+.new-work-strip {
+  background: var(--yellow);
+  border-top: 4px solid var(--black);
+  border-bottom: 4px solid var(--black);
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.new-work-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  border-right: 3px solid var(--black);
+  padding-right: 20px;
+}
+
+.new-work-strip a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--black);
+}
+
+.new-work-strip a:hover { opacity: 0.6; }
+
+.new-work-sep {
+  color: var(--black);
+  opacity: 0.3;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── FOOTER ── */
+.sitefooter {
+  background: var(--black);
+  color: var(--muted);
+  padding: 18px 40px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 4px solid var(--yellow);
+}
+
+.sitefooter a {
+  color: var(--yellow);
+  text-decoration: none;
+}
+
+.sitefooter a:hover { opacity: 0.8; }
+
+/* ── GENERIC PAGE CONTENT (teaching, research, etc) ── */
+.page-content {
+  padding: 40px;
+  max-width: 800px;
+}
+
+.page-content h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  border-bottom: var(--border);
+  padding-bottom: 12px;
+}
+
+.page-content h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.03em;
+  margin: 28px 0 10px;
+}
+
+.page-content p {
+  margin-bottom: 16px;
+  line-height: 1.7;
+  color: #333;
+}
+
+.page-content a {
+  color: var(--black);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.page-content a:hover { opacity: 0.6; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-photo { min-height: 200px; border-right: none; border-top: var(--border); }
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card { border-right: none; }
+  .manifesto { padding: 12px 20px; }
+  .section-header, .new-work-strip, .page-content { padding-left: 20px; padding-right: 20px; }
+  .hero-text { padding: 24px 20px; }
+  .sitefooter { flex-direction: column; gap: 8px; text-align: center; }
+}

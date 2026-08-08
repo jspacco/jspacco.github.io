@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ page.title }} – Tropes of History</title>
+  <link rel="stylesheet" href="{{ '/assets/css/tropes.css' | relative_url }}">
+  <style>
+    .popup-footnote {
+      position: absolute;
+      z-index: 1000;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      padding: 1rem 1.25rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-width: 420px;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.95) translateY(-10px);
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+    .popup-footnote.show {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    .popup-footnote::after {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 20px;
+      border: 8px solid transparent;
+      border-bottom-color: white;
+    }
+    .popup-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #999;
+      line-height: 1;
+    }
+    .popup-number {
+      font-weight: bold;
+      color: #0066cc;
+      font-size: 1em;           /* ← same size as text */
+      margin-right: 0.4em;
+      display: inline;
+      vertical-align: baseline;
+    }
+    #popup-content {
+      display: block;
+      white-space: normal;
+    }
+    #popup-content > p:first-child { margin-top: 0; }
+    #popup-content > p:last-child { margin-bottom: 0; }
+    sup.footnote-ref {
+      cursor: pointer;
+      color: #0066cc;
+      font-size: 0.8em;
+    }
+    sup.footnote-ref:hover { text-decoration: underline; }
+    .footnotes { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header style="padding:2rem 1rem; border-bottom:1px solid #ddd; background:#fff; text-align:center;">
+    <h1><a href="/tropes/" style="color:#0066cc; text-decoration:none;">Tropes of History</a></h1>
+    <p><a href="/">Back to main site</a></p>
+  </header>
+
+  <main style="max-width:720px; margin:3rem auto; padding:0 1rem; line-height:1.7; font-family: Georgia, serif; position:relative;">
+    {{ content }}
+  </main>
+
+  <div id="footnote-popup" class="popup-footnote">
+    <span class="popup-close">×</span>
+    <div id="popup-content"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const popup = document.getElementById("footnote-popup");
+      const content = document.getElementById("popup-content");
+      let currentTrigger = null;
+
+      function closePopup() {
+        popup.classList.remove("show");
+        currentTrigger = null;
+        document.body.style.overflow = "";
+      }
+
+      popup.querySelector(".popup-close").onclick = closePopup;
+      document.addEventListener("keydown", e => e.key === "Escape" && closePopup());
+
+      document.addEventListener("click", e => {
+        if (popup.classList.contains("show") && !popup.contains(e.target) && !e.target.closest('sup')) {
+          closePopup();
+        }
+      });
+
+      document.querySelectorAll('sup[id^="fnref"] a').forEach(ref => {
+        const href = ref.getAttribute("href");
+        const footnoteId = href.substring(1);
+        const footnote = document.querySelector('#' + CSS.escape(footnoteId));
+
+        if (!footnote) return;
+
+        const number = ref.textContent.trim();
+
+        // Remove backlink + strip <p> tags that cause line breaks
+        let text = footnote.innerHTML
+          .replace(/<a[^>]*class="reversefootnote"[^>]*>.*?<\/a>/gi, '')
+          .replace(/<\/?p[^>]*>/gi, '')  // ← THIS IS THE KEY FIX
+          .trim();
+
+        ref.onclick = function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (currentTrigger === ref) {
+            closePopup();
+            return;
+          }
+
+          currentTrigger = ref;
+
+          const rect = ref.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+          popup.style.top = (rect.bottom + scrollTop + 10) + "px";
+          popup.style.left = Math.max(20, Math.min(rect.left, window.innerWidth - 450)) + "px";
+
+          content.innerHTML = `<span class="popup-number">${number}.</span>${text}`;
+          popup.classList.add("show");
+          document.body.style.overflow = "hidden";
+        };
+      });
+
+      document.querySelector('.footnotes')?.remove();
+    });
+  </script>
+</body>
+</html>
