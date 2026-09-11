@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Failure Modes & Blind Spots</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Code+Pro:wght@400;600&family=Lato:wght@300;400;700&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent1: #c8a96e;
+    --accent2: #7fb3c8;
+    --accent3: #c87f7f;
+    --accent4: #7fc89a;
+    --text: #e8e4dc;
+    --muted: #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 60px 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.8;
+  }
+
+  .subtitle em { color: var(--text); font-style: normal; }
+
+  .meta {
+    margin-top: 32px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px 0;
+  }
+
+  /* ── CATEGORY ── */
+  .category { margin-bottom: 72px; }
+
+  .category-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+    opacity: 0.12;
+    flex-shrink: 0;
+  }
+
+  .category-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .category-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 6px;
+    max-width: 600px;
+  }
+
+  .cat-1 .category-label, .cat-1 .category-number { color: var(--accent1); }
+  .cat-2 .category-label, .cat-2 .category-number { color: var(--accent2); }
+  .cat-3 .category-label, .cat-3 .category-number { color: var(--accent3); }
+  .cat-4 .category-label, .cat-4 .category-number { color: var(--accent4); }
+
+  /* ── ITEMS GRID ── */
+  .items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* ── ITEM CARD ── */
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .item:hover { border-color: #3a3a3a; }
+
+  .item-header { padding: 22px 22px 0; }
+
+  .item-name {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .cat-1 .item-name { color: var(--accent1); }
+  .cat-2 .item-name { color: var(--accent2); }
+  .cat-3 .item-name { color: var(--accent3); }
+  .cat-4 .item-name { color: var(--accent4); }
+
+  .item-desc {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.65;
+    padding-bottom: 16px;
+  }
+
+  .item-desc strong { color: var(--text); font-weight: 700; }
+
+  /* ── EXAMPLE TOGGLE BUTTON ── */
+  .example-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 22px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-align: left;
+  }
+
+  .cat-1 .example-toggle-btn:hover { background: rgba(200,169,110,0.05); color: var(--accent1); }
+  .cat-2 .example-toggle-btn:hover { background: rgba(127,179,200,0.05); color: var(--accent2); }
+  .cat-3 .example-toggle-btn:hover { background: rgba(200,127,127,0.05); color: var(--accent3); }
+  .cat-4 .example-toggle-btn:hover { background: rgba(127,200,154,0.05); color: var(--accent4); }
+
+  .cat-1 .example-toggle-btn.open { color: var(--accent1); background: rgba(200,169,110,0.05); }
+  .cat-2 .example-toggle-btn.open { color: var(--accent2); background: rgba(127,179,200,0.05); }
+  .cat-3 .example-toggle-btn.open { color: var(--accent3); background: rgba(200,127,127,0.05); }
+  .cat-4 .example-toggle-btn.open { color: var(--accent4); background: rgba(127,200,154,0.05); }
+
+  .toggle-arrow { font-size: 14px; transition: transform 0.2s; }
+  .example-toggle-btn.open .toggle-arrow { transform: rotate(180deg); }
+
+  /* ── EXAMPLE BODY ── */
+  .example-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .example-body.open { display: block; }
+
+  .example-context {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* ── TRANSCRIPT ── */
+  .transcript { display: flex; flex-direction: column; gap: 8px; }
+
+  .turn { border-radius: 4px; overflow: hidden; font-size: 13px; }
+
+  .turn-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    font-weight: 600;
+  }
+
+  .turn-content {
+    padding: 10px 12px;
+    line-height: 1.7;
+  }
+
+  .turn.faculty { border: 1px solid #3a4a6a; }
+  .turn.faculty .turn-label { background: #1a1f2e; color: #7fa0d8; border-bottom: 1px solid #3a4a6a; }
+  .turn.faculty .turn-content { background: rgba(26,31,46,0.6); }
+
+  .turn.student { border: 1px solid #5a3a3a; }
+  .turn.student .turn-label { background: #1f1a1a; color: #c87f7f; border-bottom: 1px solid #5a3a3a; }
+  .turn.student .turn-content { background: rgba(31,26,26,0.6); }
+
+  .turn.ai { border: 1px solid #3a5a4a; }
+  .turn.ai .turn-label { background: #1a2420; color: #7fc89a; border-bottom: 1px solid #3a5a4a; }
+  .turn.ai .turn-content { background: rgba(26,36,32,0.6); }
+
+  .turn.submitted { border: 1px solid #4a4a2a; }
+  .turn.submitted .turn-label { background: #1e1e14; color: #c8c87f; border-bottom: 1px solid #4a4a2a; }
+  .turn.submitted .turn-content { background: rgba(30,30,20,0.6); font-style: italic; color: var(--muted); }
+
+  /* ── INLINE FOOTNOTES ── */
+  .fn { display: inline; cursor: pointer; }
+
+  .fn-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(200,169,110,0.15);
+    color: var(--accent1);
+    font-size: 8px;
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 600;
+    vertical-align: super;
+    margin-left: 1px;
+    border: 1px solid rgba(200,169,110,0.3);
+    transition: background 0.15s;
+    line-height: 1;
+  }
+
+  .fn:hover .fn-marker,
+  .fn.active .fn-marker { background: rgba(200,169,110,0.35); }
+
+  .fn-content {
+    display: none;
+    margin: 6px 0 4px 0;
+    background: rgba(200,169,110,0.06);
+    border-left: 2px solid var(--accent1);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #bbb;
+    line-height: 1.6;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .fn-content.open { display: block; }
+  .fn-content strong { color: var(--text); }
+
+  /* ── BOTTOM NOTE ── */
+  .note {
+    background: var(--surface);
+    border-left: 3px solid var(--accent1);
+    padding: 20px 24px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-top: 48px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .note strong { color: var(--text); font-weight: 700; }
+
+  .sublevel-header {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    opacity: 0.7;
+    margin: 0 0 14px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #333;
+  }
+
+  .sublevel-header + .items {
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 40px 24px 32px; }
+    main { padding: 40px 24px 0; }
+    .items { grid-template-columns: 1fr; }
+    .category-number { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Reference Document · AI Pedagogy</div>
+  <h1>AI Failure Modes<br>&amp; Blind Spots</h1>
+  <p class="subtitle">A taxonomy of how AI-assisted work goes wrong — organized by <em>who</em> fails, <em>how visibly</em>, and <em>at what level</em>. Developed for teaching students to use AI well, not just use AI.</p>
+  <div class="meta">Four categories · Behavioral / Cognitive / Systemic · Examples drawn from humanities courses</div>
+</header>
+
+<main>
+
+  <!-- ══════════════════════════════════════════
+       CATEGORY 1 — USER HABITS
+  ══════════════════════════════════════════ -->
+  <div class="category cat-1">
+    <div class="category-header">
+      <div class="category-number">01</div>
+      <div class="category-title-block">
+        <div class="category-label">Observable · User-side</div>
+        <div class="category-title">User Habits</div>
+        <div class="category-desc">Behavioral patterns in how people use AI. 100-level patterns are visible from the outside and easy to name. 200- and 300-level patterns are subtler — errors of interaction style and frame that can look like good use from the outside.</div>
+      </div>
+    </div>
+
+    <div class="sublevel-header">100-level — Errors of effort</div>
+    <div class="items">
+
+      <!-- PASTE-IN / PASTE-OUT -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Paste-in / Paste-out</div>
+          <div class="item-desc">Copy the assignment in, copy the output out. <strong>No thinking at either end.</strong> The student is a conduit, not a participant. The most egregious form of outsourcing.</div>
+        </div>
+        <button class="example-toggle-btn" onclick="toggleItem(this)">
+          <span>Show example</span>
+          <span class="toggle-arrow">▾</span>
+        </button>
+        <div class="example-body">
+          <div class="example-context">Sophomore American literature survey. Weekly reading response. The assignment asks students to identify something specific from their own reading of the text.</div>
+          <div class="transcript">
+
+            <div class="turn faculty">
+              <div class="turn-label">Faculty Prompt</div>
+              <div class="turn-content">In 2–3 paragraphs, identify one image or motif from this week's reading in <em>The Great Gatsby</em> and explain what it reveals about Fitzgerald's themes. Use at least one direct quote from the text to support your reading.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">In 2–3 paragraphs, identify one image or motif from this week's reading in <em>The Great Gatsby</em> and explain what it reveals about Fitzgerald's themes. Use at least one direct quote from the text to support your reading.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">A</span><span class="fn-content">The student prompt is the faculty prompt copied exactly. The assignment asked the student to identify something from their own reading — to <em>notice</em> something. That act of noticing is what the assignment was designed to produce. It has been skipped entirely.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">One of the most striking motifs in <em>The Great Gatsby</em> is the imagery of light and darkness, which Fitzgerald uses to explore the tension between illusion and reality. The green light at the end of Daisy's dock represents Gatsby's longing for a past he cannot recover. As Nick observes, Gatsby reaches toward it <span class="fn" onclick="toggleFn(event,this)">"with trembling fingers"<span class="fn-marker">B</span><span class="fn-content"><strong>"With trembling fingers" does not appear in the novel.</strong> Fitzgerald's description of Gatsby reaching toward the light is wordless — Nick sees him stretching his arms toward the dark water. The AI has fabricated a plausible-sounding quote. A student who did the reading would catch this immediately. This student did not do the reading.</span></span> — a gesture that captures both his hope and its impossibility.<br><br>This imagery extends throughout the novel. Gatsby's parties blaze with artificial light, yet the man himself remains oddly absent, watching from a distance. The brightness is a facade: the entire edifice of his world is theatrical — spectacular, hollow, and temporary.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">C</span><span class="fn-content">Generic — this observation would appear in any Gatsby essay. Nothing is drawn from a specific moment the student noticed while reading. The faculty prompt required a direct quote; the AI produced a fabricated one in paragraph one and none in paragraph two.</span></span></div>
+            </div>
+
+            <div class="turn submitted">
+              <div class="turn-label">Submitted</div>
+              <div class="turn-content">Verbatim, without revision.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">D</span><span class="fn-content">Submitted without reading carefully enough to verify the quote. A fabricated citation is now in the instructor's hands. The student received apparent credit for an insight they did not have, grounded in a passage that does not exist.</span></span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ONE-SHOT PROMPTING -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">One-Shot Prompting</div>
+          <div class="item-desc">Treats the AI like a search engine. Ask once, accept the result. <strong>No iteration, no pushback, no refinement.</strong> Misses the entire value of dialogue.</div>
+        </div>
+        <button class="example-toggle-btn" onclick="toggleItem(this)">
+          <span>Show example</span>
+          <span class="toggle-arrow">▾</span>
+        </button>
+        <div class="example-body">
+          <div class="example-context">Junior-level philosophy course. Students have read Mill's <em>Utilitarianism</em> and Kant's <em>Groundwork</em> and discussed both in class for two weeks.</div>
+          <div class="transcript">
+
+            <div class="turn faculty">
+              <div class="turn-label">Faculty Prompt</div>
+              <div class="turn-content">In one paragraph, apply both frameworks to the following situation: a doctor has five patients who will die without organ transplants and one healthy patient whose organs could save all five. Would a utilitarian and a Kantian give the same advice or different advice here? Which response do you find more convincing and why?</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">What is the difference between utilitarianism and deontological ethics?<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">A</span><span class="fn-content">The faculty prompt gave the student a concrete scenario and a pointed question. The student ignored all of it and asked a generic definitional question instead — treating the AI like an encyclopedia. Two weeks of class discussion that were supposed to inform this response have been bypassed entirely.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">Utilitarianism holds that the right action is the one that produces the greatest good for the greatest number, associated with philosophers like Bentham and Mill. Deontological ethics, associated with Kant, holds that certain actions are inherently right or wrong regardless of their consequences. The key difference is that utilitarianism focuses on outcomes while deontology focuses on duties and rules.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">B</span><span class="fn-content">The response does not mention the transplant scenario, applies neither framework to anything, and takes no position. It answers a different, much easier question than the one assigned. The transplant problem is a famous thought experiment designed precisely to show where utilitarian reasoning becomes troubling. None of that appears here.</span></span></div>
+            </div>
+
+            <div class="turn submitted">
+              <div class="turn-label">Submitted</div>
+              <div class="turn-content">Verbatim.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">C</span><span class="fn-content">The submitted response does not answer the assignment. It takes no personal position, does not engage with the scenario, and would earn no marks as philosophy. A student who engaged with the actual prompt — even using AI — would have told the AI which framework they found more convincing and asked it to help develop that argument.</span></span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- INFINITE PROMPTING -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Infinite Prompting / Zero Thinking</div>
+          <div class="item-desc">Outsources all cognitive work. Keeps prompting until something comes out, never engages critically with any of it. <strong>Mistakes activity for thought.</strong></div>
+        </div>
+        <button class="example-toggle-btn" onclick="toggleItem(this)">
+          <span>Show example</span>
+          <span class="toggle-arrow">▾</span>
+        </button>
+        <div class="example-body">
+          <div class="example-context">Same course, same assignment as the one-shot example above. A different student — more exchanges, no more thinking.</div>
+          <div class="transcript">
+
+            <div class="turn faculty">
+              <div class="turn-label">Faculty Prompt</div>
+              <div class="turn-content">In one paragraph, apply both frameworks to the following situation: a doctor has five patients who will die without organ transplants and one healthy patient whose organs could save all five. Would a utilitarian and a Kantian give the same advice or different advice here? Which response do you find more convincing and why?</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">Write a paragraph about utilitarianism and deontological ethics for my philosophy class.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">A</span><span class="fn-content">The student has not read the faculty prompt carefully enough to include any of its specifics. The organ transplant scenario — the entire substance of the assignment — does not appear. The student is trying to generate a paragraph about philosophy class, not think about the question posed.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">Utilitarianism and deontological ethics represent two of the most influential frameworks in moral philosophy. Utilitarianism, developed by Bentham and Mill, holds that the right action produces the greatest good for the greatest number. Deontological ethics, associated with Kant, holds that certain actions are inherently right or wrong regardless of consequences. Both frameworks continue to shape debates in contemporary ethics.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">Can you make it sound less like Wikipedia.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">B</span><span class="fn-content">The student's only criterion for a good response is surface texture. "Less like Wikipedia" is an aesthetic judgment with no intellectual content. The student is not asking whether the response is accurate, takes a position, or addresses the assignment. They are adjusting the style of something they haven't read carefully.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">At its core, the debate comes down to a simple but profound question: does the end justify the means? Utilitarians say yes — the right choice is whatever produces the most good. Kantians say no — some actions are simply off limits, no matter what good might come from them.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">Can you make it a little shorter.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">C</span><span class="fn-content">Still no engagement with whether the response answers the assignment. The student is optimizing length. Three prompts in, the actual question has not been considered once.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">Utilitarians believe the right action produces the best outcome for the most people. Kantians believe some actions are inherently wrong regardless of consequences. The debate comes down to whether the ends can ever justify the means.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">Actually it needs to be about the organ transplant thing she mentioned in the prompt.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">D</span><span class="fn-content">The student has finally noticed that the assignment had specific content — not because they thought about the question but because something made them glance back at the faculty prompt. This is the closest thing to thinking in the entire exchange, and it is essentially accidental. Four prompts in.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">The organ transplant scenario puts these two frameworks in sharp conflict. A utilitarian would likely endorse harvesting the one patient's organs to save five — the math is straightforward. A Kantian would refuse: using the patient as a means to save others violates the duty to treat persons as ends in themselves. <span class="fn" onclick="toggleFn(event,this)">I find the Kantian position more convincing here<span class="fn-marker">E</span><span class="fn-content"><strong>This is the AI's position, not the student's.</strong> The faculty prompt asked which framework the student finds more convincing and why. That judgment has been outsourced entirely. The student will submit it as their own view.</span></span> — there is something deeply troubling about reducing a person to a collection of useful parts, regardless of the arithmetic.</div>
+            </div>
+
+            <div class="turn submitted">
+              <div class="turn-label">Submitted</div>
+              <div class="turn-content">Verbatim.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">F</span><span class="fn-content">The final paragraph addresses the scenario and takes a position — better than one-shot prompting produced. It is also entirely the AI's argument. The five-exchange journey created an illusion of intellectual engagement: the student adjusted style, length, and format without once asking whether the response answered the question. <strong>Mistaking activity for thought.</strong></span></span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- PASTE-IN / PASTE-OUT — GOOD USE -->
+      <div class="item" style="border-color: #3a5a4a;">
+        <div class="item-header">
+          <div class="item-name" style="color: var(--accent4);">Paste-in / Paste-out — Good Use Contrast</div>
+          <div class="item-desc">The same assignment. A student who reads first, comes in with an observation, and uses AI to pressure-test their own thinking rather than produce it. <strong>The AI never writes the argument — it interrogates it.</strong></div>
+        </div>
+        <button class="example-toggle-btn" onclick="toggleItem(this)" style="border-top-color: #3a5a4a;">
+          <span>Show example</span>
+          <span class="toggle-arrow">▾</span>
+        </button>
+        <div class="example-body">
+          <div class="example-context">Same course, same assignment. A different student who does the reading before opening the AI.</div>
+          <div class="transcript">
+
+            <div class="turn faculty">
+              <div class="turn-label">Faculty Prompt</div>
+              <div class="turn-content">In 2–3 paragraphs, identify one image or motif from this week's reading in <em>The Great Gatsby</em> and explain what it reveals about Fitzgerald's themes. Use at least one direct quote from the text to support your reading.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">I'm writing a response about <em>The Great Gatsby</em>. I noticed that Fitzgerald keeps describing people's voices in unusual ways — he says Daisy's voice is "full of money" and Jordan's voice has a quality Nick can't quite name. I want to argue that voice is being used to mark class and authenticity. Can you help me think through whether that's a defensible reading, and what I might be missing?<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">A</span><span class="fn-content">The student arrives with an observation they made from the text. They have done the intellectual work the assignment required — noticing something — and are now using the AI to pressure-test it. The prompt is specific, self-aware, and invites pushback rather than asking for a finished product.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">That's a strong observation and genuinely defensible. The "full of money" line is one of the most discussed in the novel — it's in Chapter 7, when Gatsby finally says it aloud, but the idea builds from Chapter 1 where Nick describes Daisy's voice as having "a singing compulsion." The voice-as-class-marker reading connects well to the novel's concern with authenticity: voices in Gatsby are performances, not expressions of self.<br><br>What you might be missing: Jordan's voice is described less than Daisy's, so if you're building a motif argument you'll want enough textual evidence for "people's voices" rather than just Daisy's. You might also consider Tom — Fitzgerald describes his manner of speaking too, in quite a different register.<br><br>One thing to be careful about: "full of money" comes late in the novel. If the assignment is about this week's reading specifically, you'll want to anchor your argument in whatever chapters were assigned.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">B</span><span class="fn-content">The AI responds as a thinking partner: confirms the reading is defensible, identifies a scope problem (Jordan's voice is thin), flags a potential chapter constraint issue, and points toward evidence the student hadn't considered. It does not write the response.</span></span></div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">The reading was chapters 1 through 3. Does the voice motif appear enough in those chapters to build a response around, or should I pick something else?<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">C</span><span class="fn-content">The student is using the AI to make a scoping decision — a real intellectual choice — rather than just generating text. They've taken the AI's concern seriously and are now asking a focused follow-up question.</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">It appears, but thinly. In chapter 1 Nick describes Daisy's voice as having "a singing compulsion" and "a promise that she had done gay, exciting things just a while since." That's rich but it's one passage. Jordan barely speaks in chapters 1–3. You could build a response around it but you'd be leaning heavily on one moment.<br><br>Stronger options from chapters 1–3 if you want a motif with more textual density: the heat and stillness imagery in chapter 1, the artificial light at Gatsby's party in chapter 3, or the language of performance and theater that runs through the party scene. Any of those give you three or more distinct moments to work with.<br><br>That said — if the voice observation genuinely struck you while reading, that's worth something. A sharp reading of one passage can be more interesting than a mechanical cataloguing of three.</div>
+            </div>
+
+            <div class="turn student">
+              <div class="turn-label">Student → AI</div>
+              <div class="turn-content">I want to stick with voice. I'll focus on the chapter 1 passage and argue that Daisy's voice is constructed to be seductive and unreadable at the same time — that's what makes it represent the novel's themes about illusion. Here's my draft paragraph: "Fitzgerald uses Daisy's voice in Chapter 1 to establish the novel's central tension between desire and unknowability. Nick describes her voice as having 'a singing compulsion' and 'a promise,' suggesting that it produces longing in the listener while remaining fundamentally opaque. The voice is not a window into Daisy's interior — it is a surface, carefully maintained." Can you tell me if I'm making any logical leaps I haven't earned yet?<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">D</span><span class="fn-content">The student made a deliberate choice to stay with their original instinct despite the AI's caution about thin evidence — a genuine intellectual decision. They then produced a draft and asked the AI to find logical gaps, not to improve the prose. This is the right question: not "make this better" but "where am I ahead of my evidence?"</span></span></div>
+            </div>
+
+            <div class="turn ai">
+              <div class="turn-label">AI Response</div>
+              <div class="turn-content">The reading is solid and the final sentence is your best — "a surface, carefully maintained" is doing real work. Two places where you're slightly ahead of your evidence: "carefully maintained" implies intentionality on Daisy's part, but the passage is filtered through Nick's perception — you'd want to either qualify that (whose maintenance, Daisy's or Nick's projection?) or find a moment where Daisy seems to consciously perform. Also, "fundamentally opaque" is your claim but the quotes don't quite get you there — "a promise" could be read as transparent rather than opaque. You might pull in the line about "inexhaustible charm" and consider whether inexhaustibility is the same as opacity.<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">E</span><span class="fn-content">The AI identifies two specific logical gaps — the attribution problem with "carefully maintained" and the gap between "a promise" and "fundamentally opaque" — without rewriting the paragraph. This is useful feedback the student can act on. It is not a replacement for the student's thinking.</span></span></div>
+            </div>
+
+            <div class="turn submitted">
+              <div class="turn-label">Submitted</div>
+              <div class="turn-content">Revised draft. Student added a qualifier to "carefully maintained" (attributing it to Nick's perception rather than Daisy's intention) and incorporated the "inexhaustible charm" passage to close the gap on "opacity."<span class="fn" onclick="toggleFn(event,this)"><span class="fn-marker">F</span><span class="fn-content">The submitted work is the student's argument, revised in response to specific feedback on specific logical gaps. The observation came from the student. The choice to stick with a thin-evidence reading came from the student. The draft came from the student. The AI pressure-tested, flagged, and pointed — it did not produce. This is what good use looks like.</span></span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /items 100 -->
+
+    <div class="sublevel-header" style="margin-top:32px;">200-level — Errors of interaction style</div>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Hyperfixation Capture</div>
+          <div class="item-desc">User arrives with so much energy on a specific angle that the frame never gets examined. <strong>AI follows the energy rather than stress-testing the premise.</strong> Feels like productive collaboration; is actually elaboration without examination.<br><br><em>Signal: long generative burst, no one asked “but is this the right problem?”</em></div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Expertise Asymmetry Blindness</div>
+          <div class="item-desc">User is expert enough in some domains to catch AI errors, but adjacent domains feel the same — same fluency, same confidence. <strong>User applies uniform trust across domains when skepticism should vary sharply by territory.</strong><br><br><em>Signal: “I don’t actually know much about this” said after accepting output uncritically.</em></div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">The Affirmation Loop</div>
+          <div class="item-desc">User thinks out loud well; AI reflects ideas back sharpened. Feels like collaboration but is sometimes just the user’s own idea returned with better lighting. <strong>Validation when resistance would be more useful.</strong><br><br><em>Signal: “yes, exactly” — but the insight originated in the user’s message.</em></div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Scope Inflation Under Enthusiasm</div>
+          <div class="item-desc">In generative bursts, AI is a willing collaborator on each new idea. Neither party pushes back on “and also this.” <strong>A human collaborator might say “finish one thing first.” AI rarely does.</strong><br><br><em>Signal: N unfinished projects, each with elaborate structure.</em></div>
+        </div>
+      </div>
+
+    </div><!-- /items 200 -->
+
+    <div class="sublevel-header" style="margin-top:32px;">300-level — Errors of frame</div>
+    <div class="items">
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Using AI to Think But Not to Change Your Mind</div>
+          <div class="item-desc">AI is used for elaboration, generation, and refinement — but never actually shifts the user’s position. <strong>The conversation confirms and extends rather than challenges.</strong> Indistinguishable from good use unless you track whether any outputs surprised you.<br><br><em>Signal: you can’t remember the last time AI made you reconsider something foundational.</em></div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Reframe as Avoidance</div>
+          <div class="item-desc">The instinct to pivot from constraint to possibility is a strength — but deployed too quickly, it becomes a way to avoid sitting with the hard thing. <strong>Solving the wrong problem enthusiastically.</strong><br><br><em>Signal: reframe happens before the constraint is fully understood.</em></div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-header">
+          <div class="item-name">Summary as Substitute</div>
+          <div class="item-desc">AI synthesis replaces direct engagement with difficult primary sources. Net neutral or positive at the individual level — genuine breadth that wouldn't otherwise exist. <strong>Corrosive at scale because it homogenizes the conceptual landscape.</strong> The eccentric reading, the productive misreading, the thing you notice in paragraph four that nobody else noticed — these stop getting generated when everyone encounters the same AI summary of the same text.<br><br>The model collapse analogy applies: train on synthetic data, drift toward the center of the distribution, train on that output, drift further, the tails disappear. If a generation learns Foucault through the same AI summary, the minority readings and idiosyncratic interpretations that drove intellectual history stop being produced.<br><br><em>Signal: you can use the concepts fluently but couldn't defend a specific claim against the original text.</em></div>
+        </div>
+      </div>
+
+    </div><!-- /items 300 -->
+
+  </div><!-- /cat-1 -->
+
+
+  <!-- ══════════════════════════════════════════
+       CATEGORY 2 — AI FAILURE MODES
+  ══════════════════════════════════════════ -->
+  <div class="category cat-2">
+    <div class="category-header">
+      <div class="category-number">02</div>
+      <div class="category-title-block">
+        <div class="category-label">Recognizable · AI-side</div>
+        <div class="category-title">AI Failure Modes</div>
+        <div class="category-desc">Things the AI does that a sophisticated user must learn to recognize and compensate for. <strong>Invisible without domain knowledge</strong> — can't be taught in the abstract.</div>
+      </div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="item-header"><div class="item-name">Coherence Before Completeness</div><div class="item-desc">Produces fluent, confident synthesis <strong>on an incomplete map</strong>. Sounds authoritative. Is missing things. The writing quality masks the gap.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Premature Commitment</div><div class="item-desc">Picks a framing early and defends it. <strong>Subsequent answers serve the initial frame</strong> rather than the actual question. Hard to dislodge once set.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Confident Adjacency</div><div class="item-desc">Gives something close to what was asked, <strong>presents it as exact</strong>. The answer is in the right neighborhood but not the right address. Plausible enough to pass casual inspection.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Sycophantic Escalation</div><div class="item-desc"><strong>Amplifies the user's framing</strong> rather than stress-testing it. If you're wrong, the AI builds enthusiastically on your wrongness. Agreement feels like validation.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Authority Laundering</div><div class="item-desc">Real citations, <strong>serving a framing they don't actually support</strong>. The sources exist. They don't say what the AI implies they say. Hard to catch without reading them.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Error Mirroring</div><div class="item-desc">Accommodates the user's mistakes rather than flagging them. <strong>Matches the user's vocabulary, errors, and framing</strong> — feels like agreement, is actually sycophancy at the word level.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Scope Inflation</div><div class="item-desc">Adds nuance, complexity, and caveats when the user needed something <strong>bounded and shippable</strong>. Related to premature commitment but in the direction of elaboration rather than narrowing.</div></div></div>
+    </div>
+
+    <div class="item" style="margin-top:16px; border-color: #3a4a6a;">
+      <div class="item-header">
+        <div class="item-name" style="color: var(--accent2);">Why These Are Hard to Teach</div>
+        <div class="item-desc">AI failure modes are <strong>invisible without domain knowledge.</strong> Unlike user habits, they cannot be demonstrated in the abstract.</div>
+      </div>
+      <button class="example-toggle-btn" onclick="toggleItem(this)" style="border-top-color: #3a4a6a;">
+        <span>Read more</span>
+        <span class="toggle-arrow">▾</span>
+      </button>
+      <div class="example-body">
+        <p style="font-size:14px; color:#aaa; line-height:1.75;">A student without sufficient background cannot recognize confident adjacency, authority laundering, or premature commitment because they have no independent basis for evaluation. When the AI produces a fluent, well-structured answer that is subtly wrong, a student who doesn't know the subject has no way to see the gap. The failure is invisible precisely where the student is most vulnerable.</p>
+        <p style="font-size:14px; color:#aaa; line-height:1.75; margin-top:12px;">This is why teaching AI use well requires the same mentorship infrastructure as teaching any other sophisticated skill: small classes, hands-on attention, and instructors who model the critical process, not just the output. A lecture on AI failure modes without subject-matter context teaches students the names of problems they still cannot see.</p>
+      </div>
+    </div>
+
+  </div><!-- /cat-2 -->
+
+
+  <!-- ══════════════════════════════════════════
+       CATEGORY 3 — COGNITIVE TRAPS
+  ══════════════════════════════════════════ -->
+  <div class="category cat-3">
+    <div class="category-header">
+      <div class="category-number">03</div>
+      <div class="category-title-block">
+        <div class="category-label">Invisible · Interaction-level</div>
+        <div class="category-title">Cognitive Traps</div>
+        <div class="category-desc">Slow-developing, invisible to the person experiencing them. Not habits — <strong>conditions</strong>. The student doesn't know they're in one. Require metacognitive intervention to escape.</div>
+      </div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="item-header"><div class="item-name">Fluent Premature Synthesis</div><div class="item-desc">User accepts coherent-but-incomplete output because <strong>it sounds done</strong>. The AI's fluency signals completion where there is none. Stops inquiry prematurely.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Collaborative Hallucination</div><div class="item-desc">User and AI <strong>build an elaborate structure neither questions</strong>. Both parties reinforce the same frame. The conversation feels productive. The output is a shared fiction.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Expertise Substitution</div><div class="item-desc">AI confidence <strong>replaces domain knowledge</strong> rather than augmenting it. The user defers to the AI in exactly the area where they most need to think for themselves.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Productive Feeling vs. Productive Being</div><div class="item-desc">Genuine engagement that <strong>substitutes for completion</strong>. The brainstorm session feels like work. Nothing gets made. Distinct from laziness — the person believes they're making progress.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Backstop Dependency</div><div class="item-desc">Knowing the AI exists <strong>changes how hard you try</strong> before reaching for it. Cursory effort followed by delegation. The student genuinely believes they tried. The bar for "stuck" quietly drops.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Scaffolding Atrophy</div><div class="item-desc">The scaffold becomes <strong>load-bearing without you noticing</strong>. Underlying capability degrades while output quality stays flat. The loss is invisible until the scaffold is removed.</div></div></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       CATEGORY 4 — SYSTEMIC FAILURE MODES
+  ══════════════════════════════════════════ -->
+  <div class="category cat-4">
+    <div class="category-header">
+      <div class="category-number">04</div>
+      <div class="category-title-block">
+        <div class="category-label">Structural · Institutional-level</div>
+        <div class="category-title">Systemic Failure Modes</div>
+        <div class="category-desc">Failures at the level of institutions and policy. Individual users can't fix these. Require deliberate structural intervention.</div>
+      </div>
+    </div>
+    <div class="items">
+      <div class="item"><div class="item-header"><div class="item-name">Assessment Apartheid</div><div class="item-desc">Institutions either lock AI out entirely or allow it completely. <strong>No middle path that teaches good use.</strong> Students learn either to avoid AI or to use it badly. Neither produces competence.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Credentialing Without Competence</div><div class="item-desc">AI compresses the feedback loop between effort and acceptable-looking output. <strong>The signal that competence has developed stops accumulating.</strong> Degrees certify process completion, not capability.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Pipeline Hollowing</div><div class="item-desc">Students learn to direct AI before learning to do the underlying work. <strong>The ladder gets pulled up.</strong> The people best positioned to evaluate AI output are the ones who already have the skills juniors never developed.</div></div></div>
+      <div class="item"><div class="item-header"><div class="item-name">Friction Removal at Scale</div><div class="item-desc">Education depends on productive struggle. AI removes friction <strong>faster than pedagogy can adapt.</strong> The feedback loop — struggle, imperfection, expert response, revision — gets short-circuited at every stage.</div></div></div>
+    </div>
+  </div>
+
+
+</main>
+
+<script>
+  function toggleItem(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+    const label = btn.querySelector('span:first-child');
+    if (label.textContent === 'Read more' || label.textContent === 'Read less') {
+      label.textContent = isOpen ? 'Read more' : 'Read less';
+    } else {
+      label.textContent = isOpen ? 'Show example' : 'Hide example';
+    }
+  }
+
+  function toggleFn(e, el) {
+    e.stopPropagation();
+    const content = el.querySelector('.fn-content');
+    const isOpen = content.classList.contains('open');
+    const turnContent = el.closest('.turn-content');
+    if (turnContent) {
+      turnContent.querySelectorAll('.fn').forEach(f => {
+        f.classList.remove('active');
+        f.querySelector('.fn-content').classList.remove('open');
+      });
+    }
+    if (!isOpen) {
+      content.classList.add('open');
+      el.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>

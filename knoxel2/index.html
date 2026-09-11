@@ -1,0 +1,604 @@
+<html>
+<head>
+<title>KnoxelJS</title>
+
+<link rel="stylesheet" type="text/css" href="./css/style.css">
+
+<script type="text/javascript">
+    // Set up Google analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-83001326-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+</head>
+<body>
+
+<ul class="tab">
+    <li><a href="#javascript" class="tablinks active" id="javascriptTab" onclick="openTab('javascript')">Javascript</a></li>
+    <li><a href="#python" class="tablinks" id="pythonTab" onclick="openTab('python')">Python</a></li>
+    <li><a href="#ruby" class="tablinks" id="rubyTab" onclick="openTab('ruby')">Ruby</a></li>
+    <li><a href="#java" class="tablinks" id="javaTab" onclick="openTab('java')">Java</a></li>
+    <li><a href="#game" class="tablinks" id="gameTab" onclick="openTab('game')">Game</a></li>
+    <li><a href="#textures" class="tablinks" id="texturesTab" onclick="openTab('textures')">Textures</a></li>
+    <li><a href="#about" class="tablinks" id="aboutTab" onclick="openTab('about')">About</a></li>
+    <li><a href="#help" class="tablinks" id="helpTab" onclick="openTab('help')">Help</a></li>
+</ul>
+
+<div id="game" class="tabcontent">
+    <div class="sidebyside">
+        <div class="divrow">
+            <div class="divcol">
+                <input type="file" id="loadDrawing" class="inputfile">
+                <label for="loadDrawing">Load Drawing from JSON</label>
+            </div>
+            <div class="divcol" onclick="toggleOption('axesOn')">
+                <input id="axesOn" name="axesOn" type="checkbox" onchange="toggleOption('axesOn')"/>
+                <label >Draw Axes</label>
+            </div>
+            <div class="divcol" onclick="toggleOption('debugOn')">
+                <input id="debugOn" name="debugOn" type="checkbox" onchange="toggleOption('debugOn')"/>
+                <label >show console.log</label>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loadDrawingErrors" class="error"></div>
+    
+    <div id="gamediv" class="container"></div>
+</div>
+
+<div id="javascript" class="tabcontent editor" style="display:block;">
+    <button id="runJavascript" onclick="runJavascript()">Run Javascript code!</button>
+    
+    <div id="javascriptErrors" class="error"></div>
+    
+    <div id="javascriptEditor" class="editor">
+const width = 2;
+const depth = 3;
+const height = 4;
+let blocks = knoxel.makeGrid(width, depth, height);
+
+for (let w=0; w&lt;width; w++){
+    for (let d=0; d&lt;depth; d++){
+        for (let h=0; h&lt;height; h++){
+            blocks[w][d][h] = knoxel.dirt;
+        }
+    }
+}
+knoxel.drawBlocks(blocks);
+    </div>
+
+</div>
+
+<div id="python" class="tabcontent editor">
+    <button id="runPython" onclick="runPython()">Run Python 2.7 code!</button>
+
+    <div id="pythonErrors" class="error"></div>
+
+    <div id="pythonEditor" class="editor">
+width = 2
+depth = 3
+height = 4
+#blocks = [[[null for k in xrange(height)] for j in xrange(depth)] for i in xrange(width)]
+blocks = makeGrid(width, depth, height)
+
+for i in xrange(width):
+    for j in xrange(depth):
+        for k in xrange(height):
+            blocks[i][j][k] = bt.cobblestone
+
+drawBlocks(blocks)
+    </div>
+</div>
+
+<div id="ruby" class="tabcontent editor">
+    <button id="runRuby" onclick="runRuby()">Run Ruby code!</button>
+    
+    <div id="rubyErrors" class="error"></div>
+    
+    <div id="rubyEditor" class="editor">
+width = 2
+depth = 3
+height = 4
+blocks = make_grid(width, depth, height)
+
+#
+# Note that Opal cannot handle nested for loops, only nested each loops
+# https://github.com/opal/opal/issues/2033
+# It looks like this was fixed elsewhere but not here
+# may need to file a bug report
+#
+(0...width).each do |i|
+    (0...depth).each do |j|
+        (0...height).each do |k|
+            blocks[i][j][k] = blocktype.grass
+        end
+    end
+end
+
+draw_blocks(blocks)
+    </div>
+</div>
+
+<div id="java" class="tabcontent">
+    <h2>Two ways to use Java!</h2>
+
+    <h3>How to use Java with BlueJ</h3>
+    <ol>
+        <li>Download and unzip/extract <a href="./java/knoxel.zip">this zipfile.</a>.</li>
+        <li>Open the folder with BlueJ</li>
+        <li>Look at the example programs in <pre>Examples.java</pre></li>
+        <li>Write your code in the file <pre>Knoxel.java</pre>. Be sure to call:
+            <p>
+            <pre>BlockWriter.writeDrawingToFile(grid, "mydrawing.json");</pre>
+            </p>
+            To produce a JSON Drawing file called "mydrawing.json" (you can pick whatever name
+            you want, you don't need to name it "mydrawing").
+        </li>
+        <li>Upload the JSON file directly to the "Game" tab using the button labeled "Upload Drawing from JSON"</li>
+    </ol>
+
+    <h3>How to use Java with your favorite IDE other than BlueJ</h3>
+    <ol>
+        <li>Download and unzip/extract <a href="./java/knoxel.zip">the BlueJ zipfile.</a>.</li>
+        <li>
+            Copy the .java files into a new project in your IDE. We use the default package to be more novice-friendly.
+        </li>
+        <li>
+            Pick up with step #3 from the instructions above.
+        </li>
+    </ol>
+</div>
+
+
+<div id="about" class="tabcontent">
+    <div>
+        Knoxel aspires to bring the joy of Minecraft to CS-0 and CS-1 courses.
+    </div>
+    <div>
+        <p>Many students have made contributions to Knoxcraft over the years! They are: </p>
+        <table id="aboutTable">
+        <tr><td>
+                <img id="avatarHeadshot" src="./images/kakoijohnAvatar.png"> John Damits, Knox College '17, funded by the Mellon Foundation and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/moemattAvatar.png"> Matt Moe, Knox College '17, funded by the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/steveAvatar.png"> Lucas Kasser, Brown University '19
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/EmhastingsAvatar.png"> Emily Hastings, Knox College '16, funded by the <a href="https://www.knox.edu/Documents/PDFs/CRAS/ASSET%20Program%20Description.pdf"> ASSET </a> program, and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/steveAvatar.png"> Michael Gerten, Knox College '16, funded by Knox's Baker-Velde award, and the <a href="https://www.knox.edu/academics/research-and-creative-work/student-research-grants/richter-awards">Richter Memorial Trust</a>
+        </td></tr>
+        <tr><td>
+            <img id="avatarHeadshot" src="./images/SpacdogAvatar.png"> Jaime Spacco, Haverford College '98
+        </td></tr>
+        </table>
+    </div>
+    <div>
+        <p>Knoxcraft is made possible by the following projects:</p>
+        <ul>
+            <li><a href="http://voxeljs.com/">VoxelJS</a>, blocks in yo browser (required <a href="http://get.webgl.org/">WebGL</a>)</li>
+            <li><a href="http://bdcraft.net/sphax-purebdcraft-texturepack">Sphax texture pack</a></li>
+            <li><a href="https://skulpt.org/"> Skulpt</a></li>
+            <li><a href="https://icons8.com/license">Icons8 (for the numbered icons)</a></li>
+            <!--
+            
+            <li><a href="http://files.minecraftforge.net/">Minecraft Forge</a>, the community-supported moddable Minecraft server</li>
+            <li><a href="https://www.spongepowered.org/">Spongepowered</a>, a Minecraft modding API built on Forge</li>
+            <li><a href="https://www.javapoly.com/">JavaPoly</a>, Java(script) in your browser</li>
+            <li><a href="https://ace.c9.io">ACE editor</a>, part of <a href="https://c9.io/">Cloud9</a></li>
+            <li><a href="https://developers.google.com/blockly/">Blockly</a>, a block-based visual programming language</li>
+            <li><a href="http://www.eclipse.org/jetty/">Jetty</a>, a webserver and servlet container</li>
+            -->
+        </ul>
+    </div>
+    <div>
+        <p>Knoxel was inspired by, or is similar to, the following projects:</p>
+        <ul>
+            <li><a href="https://minecraft.net/">Minecraft</a></li>
+            <li><a href="http://scriptcraftjs.org/">ScriptCraftJS</a>, which originally used (now defunct) <a href="https://canarymod.net/">Canarymod</a></li>
+            <li><a href="http://computercraftedu.com/">ComputerCraftEDU</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Logo_(programming_language)">Seymour Papert's Logo</a></li>
+            <li><a href="http://coweb.cc.gatech.edu/mediaComp-teach">Media Computation</a></li>
+        </ul>
+    </div>
+</div>
+
+<div id="help" class="tabcontent">
+    <h2 class="faq">I found a problem! Can I submit issues?</h2>
+    <div>
+        <p>
+        Yes! The code for Knoxel is here:
+        <a href="https://github.com/jspacco/knoxel">https://github.com/jspacco/knoxel</a>
+        </p>
+        <p>Submit an issue and I will see what I can do!</p>
+    </div>
+
+    <h2 class="faq">How do I write my code in Java?</h2>
+    <div>
+        <p>
+        Java does not yet work through the web browser, so you have to run the Java 
+        code offline, which creates a <em>JSON Drawing</em> file that you can upload
+        directly to the Game tab.
+        </p>
+        <p>
+            Check out the Java code here:
+            <ul>
+                <li><a href="./java/BlockType.java" target="_blank">BlockType.java</a> (an enum containing all of the BlockTypes)</li>
+                <li><a href="./java/BlockWriter.java" target="_blank">BlockWriter.java</a> (utility class with methods to create JSON and write files)</li>
+                <li><a href="./java/Knoxel.java" target="_blank">Knoxel.java</a> (the main driver)</li>
+            </ul>
+            Download the code and run it with your favorite IDE. To keep things 
+            accessible to novices, the code does not use packages.
+        </p>
+    </div>
+
+    <h2 class="faq">How do coordinates in Knoxel work?</h2>
+    <div>
+        <p>
+        Knoxel drawings are 3D volumes made up of 3D arrays of width, depth, and height. 
+        The coordinates are in that order, blocks[width][depth][height]. In Voxel-based 
+        worlds like Minecraft, the X-coordinate (i.e. blocks[x]) is the width;
+        while the Z-coordinate (i.e. blocks[x][z]) is depth,
+        and is the 2nd coordinate in our 3D array; then the Y-coordinate (i.e. blocks[x][z][y]) is the height, 
+        and is the 3rd coordinate in our 3D array.
+        </p>
+        <p>
+            Here is a diagram that illustrates these concepts in more detail:
+        </p>
+    </div>
+    <div class="imgcontainer">
+        <div class="imgbox">
+            <img class="center-fit" src="./images/help1.png"/>
+        </div>
+    </div>
+    
+    <h2 class="faq">Can I make contributions to Knoxel?</h2>
+    <div>
+        <p>
+        Sure! The 
+        <a href="https://github.com/jspacco/knoxel">code is here</a>
+        </p>
+        <p>Hack away at it!</p>
+    </div>
+
+    <h2 class="faq">When will Java be supported in the Browser?</h2>
+    <div>
+        <p>
+            Browser support requires a Javascript library that can transpile the source
+            language into Javascript. <a href="https://skulpt.org/">Skulpt</a> does this for Python,
+            which is how we have Python support. I haven't found any libraries that are written in 
+            Javascript, and that can transpile Java to Javascript. I recently found a parser
+            that produces CST (which I guess is like an AST but more concrete and less abstract, hence
+            the "C" in CST), but I haven't had time to really dig into it. I think transpiling a subset
+            of Java that is enough to make this work is feasible, but not in the time I ha alotted 
+            for this project.
+        </p>
+    </div>
+
+    <h2 class="faq">Can we get support for my favorite language?</h2>
+    <div>
+        <p>
+            It's not that difficult to support other langauges the same way we currently support Java,
+            by writing simple functions that produce JSON files that can be uploaded. Submit an 
+            issue if this is important to you and I will see what I can do.
+        </p>
+        <p>
+            Adding browser support is trickier, because it relies on a transpiler written 
+            in JavaScript that can transpile the source language into Javascript. If one
+            exists for the language, it should be possible!
+        </p>
+    </div>
+
+    <h2 class="faq">Where is your Minecraft server mod?</h2>
+    <div>
+        <p>
+            We have a <a href="https://github.com/jspacco/knoxcraft">really messy Spongepowered mod from a few years ago</a> 
+            that does not really
+            work. The issue is that students trigger their code by running a command-line command,
+            but a lot of those commands tried to create thousands of blocks, which lagged.
+            Minecraft expects commmand-line commands to finish very quickly, and when they don't,
+            the server assumes something is wrong and shuts down. We tried to create basically a giant
+            work-stealing architecture to make this work, but it was kind of a mess.
+        </p>
+        <p>
+            Anyway I think what we actually need are bots with infinite inventories
+            that run around and lay out the blocks. We could not get that to work a few summers,
+            and I have not had time to work on it since.
+        </p>
+    </div>
+
+    <h2 class="faq">Why can't I mine or place blocks like in regular Minecraft?</h2>
+    <div>
+        <p>
+            Knoxel is specifically designed to help CS students practice 3D arrays. 
+            You have to write code to create things!
+        </p>
+        <p>
+            If you want to play Minecraft, go play Minecraft! It's a legitimately great game that has
+            brought enormous joy to the world.
+        </p>
+    </div>
+    
+</div>
+
+<div id="textures" class="tabcontent"></div>
+
+
+<script>
+//
+// show/clear errors from attempting to compile
+//
+function setError(key, msg) {
+    document.getElementById(key).innerHTML = `<p>${msg}</p>`;
+}
+function clearError(key) {
+    document.getElementById(key).innerHTML = '';
+}
+
+function openTab(tabName) {
+    let tabcontent = document.getElementsByClassName("tabcontent");
+    for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    let tablinks = document.getElementsByClassName("tablinks");
+    for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName+'Tab').className += " active";
+}
+
+function runJavascript() {
+    // clear the error div
+    clearError('javascriptErrors');
+    // get student code
+    let studentCode = javascriptEditor.getValue();
+    try {
+        // security risk, but it's all client-side code with no state, so we don't really care
+        eval(studentCode);
+        openTab('game');
+    } catch (error) {
+        setError('javascriptErrors', error.toString());
+        // TODO: set the markers in ACE
+        // 
+        // Unfortunately, the format for an error message coming from eval
+        // is not standarized across browsers. Errors are likely to generate
+        // either ReferenceError (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError)
+        // or SyntaxError (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError)
+        // but the only given is the message. The fields for lineNumber, fileName, and stack
+        // vary between Chrome and Firefox, and I haven't been able to test IE.
+        // 
+        // I looked into parsing the text of the full error message to get out
+        // the line number, but there are not always line numbers available,
+        // plus it's hard for me to text IE since I don't have easy access
+        // to a Windows machine, so I just gave up on this part.
+        //
+        console.log(error);
+        // console.log(error.lineNumber);
+        // console.log(error.fileName);
+        // console.log(error.message);
+        // console.log(error.stack);
+    }
+}
+
+function runRuby() {
+    // clear error div
+    clearError('rubyErrors');
+    // get student code from editor, then paste our base code in front of it
+    let studentCode = rubyEditor.getValue();
+    // prepend with the pykcbase code, which contains all the block types
+    let fullCode = rubyLibraryCode + studentCode;
+    try {
+        let result = Opal.eval(fullCode);
+        // TODO: how do we know if eval failed? what does the return value here mean?
+        openTab('game');
+    } catch (error) {
+        setError('rubyErrors', error.toString());
+    }
+}
+
+function runPython() {
+    // remove markers in ACE
+    for (let mark of pythonErrorMarkers) {
+        //console.log(`clear error marker ${mark}`);
+        pythonEditor.getSession().removeMarker(mark);
+    }
+    pythonErrorMarkers = [];
+    // TODO: Currently it will highlight syntax errors at a line number,
+    // but if you fix the error, the line stays highlighted in ACE until
+    // you click on a different line in ACE. I am not sure how to fix this.
+    // Google suggests that resize() will do it, but it doesn't work.
+    pythonEditor.resize();
+
+    // clear error div
+    clearError('pythonErrors');
+
+    // get student code from editor, then paste our base code in front of it
+    let studentCode = pythonEditor.getValue();
+    // prepend with the pykcbase code, which contains all the block types
+    let fullCode = pykcLibraryCode + studentCode;
+
+    // configure and run the python code
+    Sk.configure({});
+    var myPromise = Sk.misceval.asyncToPromise(function() {
+        return Sk.importMainWithBody("<stdin>", false, fullCode, true);
+    });
+    myPromise.then(function(mod) {
+        // on success, switch to the game tab
+        openTab('game');
+    },
+    function(err) {
+        // rewrite error messages to subtract off the length of our base code
+        let errmsg = err.toString();
+        
+        // set error div
+        setError('pythonErrors', errmsg);
+        
+        // ugly post-processing of errors
+        // TODO: do Skulpt ever give multiple line numbers in a single error?
+        let regex = /line ([0-9]+)/g;
+        let newmsg = errmsg;
+        match = regex.exec(newmsg);
+        while (match != null) {
+          // matched text: match[0]
+          // match start: match.index
+          // capturing group n: match[n]
+          let oldline = match[0];
+          let num = match[1];
+          // subtract off the length of the pykcbase code
+          // to convert to the line number in the editor window
+          let newNum = num - pykcCodeLen + 1;
+          
+          // mark line in ace editor
+          let errid = pythonEditor.session.addMarker(new Range(newNum-1, 0, newNum-1, 1), "aceErrorMarker", "fullLine");
+          // add identifier for the marked line to our global variable 
+          // storing python error markers
+          pythonErrorMarkers.push(errid);
+          //console.log(`errid ${errid}`);
+          let newline = `line ${newNum}`;
+          newmsg = newmsg.replace(oldline, newline);
+          match = regex.exec(newmsg);
+        }
+        console.log(newmsg);
+    });
+    
+}
+</script>
+
+
+<!-- load code for the embedded ACE editor -->
+<script src="./ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="./ace-builds/src-min-noconflict/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
+<!-- our bundled Knoxel code -->
+<script src="./knoxel-bundle.js"></script>
+<!-- Python 2.7 support with Skulpt -->
+<script src="./pykc/skulpt.min.js"></script>
+<script src="./pykc/skulpt-stdlib.js"></script>
+<!-- Ruby support with Opal -->
+<script src="http://cdn.opalrb.com/opal/current/opal.min.js"></script>
+<script src="http://cdn.opalrb.com/opal/current/native.min.js"></script>
+<script src="http://cdn.opalrb.com/opal/current/opal-parser.min.js"></script>
+<script type="text/javascript">Opal.load('opal-parser')</script>
+<script type="text/javascript">Opal.load('native')</script>
+
+
+<script>
+    //
+    // load the pykc base code
+    // 
+    var [pykcLibraryCode, pykcCodeLen] = knoxel.readSync('./pykc/pykcbase.py');
+
+    //
+    // shimming Skulpt: Adding a new "builtin" function that hooks directly
+    // into the drawBlocks() function available in knoxel.js
+    //
+    Sk.builtins.drawBlocks = function(blocks) {
+        // convert from Skupt to pure JS, then pass off to JS function in our bundle
+        let jsblocks = [];
+        
+        // all JS values in Skulpt are objects where 
+        // the actual JS values are stored with key v
+        //console.log(`blocks.v.length ${blocks.v.length}`);
+        for (let w=0; w<blocks.v.length; w++){
+            let row = [];
+            //console.log(`blocks.v[w].v.length ${blocks.v[w].v.length}`);
+            for (let d=0; d<blocks.v[w].v.length; d++){
+                let col = [];
+                //console.log(`blocks.v[w].v[d].v.length ${blocks.v[w].v[d].v.length}`);
+                for (let h=0; h<blocks.v[w].v[d].v.length; h++){
+                    col.push(blocks.v[w].v[d].v[h].v);
+                }
+                row.push(col);
+            }
+            jsblocks.push(row);
+        }
+        // Call into our bundled JS code
+        knoxel.drawBlocks(jsblocks);
+    }
+
+    //
+    // load rubybase.rb code
+    //
+    var [rubyLibraryCode, rubyCodeLen] = knoxel.readSync('./ruby/rubybase.rb');
+
+    // Ace range function
+    var Range = ace.require('ace/range').Range;
+
+    // setup the javascript ACE editor
+    var javascriptEditor = ace.edit("javascriptEditor");
+    javascriptEditor.setTheme("ace/theme/twilight");
+    javascriptEditor.getSession().setMode("ace/mode/javascript");
+    javascriptEditor.setAutoScrollEditorIntoView(true);
+    javascriptEditor.setFontSize(20);
+    var javascriptErrorMarkers = [];
+
+    // setup the python ACE editor
+    var pythonEditor = ace.edit("pythonEditor");
+    pythonEditor.setTheme("ace/theme/twilight");
+    pythonEditor.getSession().setMode("ace/mode/python");
+    pythonEditor.setAutoScrollEditorIntoView(true);
+    pythonEditor.setFontSize(20);
+    var pythonErrorMarkers = [];
+
+    // setup the Ruby ACE editor
+    var rubyEditor = ace.edit("rubyEditor");
+    rubyEditor.setTheme("ace/theme/twilight");
+    rubyEditor.getSession().setMode("ace/mode/ruby");
+    rubyEditor.setAutoScrollEditorIntoView(true);
+    rubyEditor.setFontSize(20);
+    var rubyErrorMarkers = [];
+
+    // attach the game object to the game div
+    knoxel.game.appendTo(document.getElementById("gamediv"));
+
+    // set the textures table
+    document.getElementById("textures").appendChild(knoxel.textureTable);
+
+    // wrapper function
+    function loadDrawingWrapper(event) {
+        clearError('loadDrawingErrors');
+        // using then/catch because knoxel returns a promise
+        knoxel.loadDrawing(event).then( () => {
+            // do nothing
+        }).catch( (error) => {
+            setError('loadDrawingErrors', error);  
+        });
+    }
+
+    // set the event handler for upload drawing files
+    document.getElementById("loadDrawing").onchange = loadDrawingWrapper;
+
+    //
+    // toggle an option
+    //
+    function toggleOption(key) {
+        document.getElementById(key).checked = !document.getElementById(key).checked;
+        knoxel.opts[key] = !knoxel.opts[key];
+    }
+
+    // try to add the waila container
+    // https://stackoverflow.com/questions/26793247/how-to-overlay-a-div-over-a-canvas-css/26793302
+    document.getElementById("gamediv").appendChild(knoxel.waila);
+
+    // open proper tab (i.e. url is knoxel#textures or knoxel#game)
+    if (window.location.href.includes("#")) {
+        let idx = window.location.href.indexOf("#");
+        let tab = window.location.href.substr(idx+1);
+        openTab(tab);
+    }
+
+
+</script>
+
+</body>
+</html>
